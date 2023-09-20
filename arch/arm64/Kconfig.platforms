@@ -351,16 +351,16 @@ config ARCH_MA35DZ
 	help
 	  This enables support for Nuvoton MA35DZ SOC Family.
 
-config ARCH_MA35DH
-	bool "Nuvoton MA35DH SOC Family"
+config ARCH_MA35HZ
+	bool "Nuvoton MA35HZ SOC Family"
 	select PINCTRL
-	select PINCTRL_MA35DH
+	select PINCTRL_MA35HZ
 	select PM
 	select GPIOLIB
 	select SOC_BUS
 	select VIDEOMODE_HELPERS
 	select FB_MODE_HELPERS
 	help
-	  This enables support for Nuvoton MA35DH SOC Family.
+	  This enables support for Nuvoton MA35HZ SOC Family.
 
 endmenu

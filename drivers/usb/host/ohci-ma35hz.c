@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * linux/driver/usb/host/ohci-ma35dh.c
+ * linux/driver/usb/host/ohci-ma35hz.c
  *
  * Copyright (c) 2020 Nuvoton technology corporation.
  *
@@ -24,32 +24,32 @@
 
 #include <linux/regmap.h>
 #include <linux/mfd/syscon.h>
-#include <linux/mfd/ma35dh-sys.h>
+#include <linux/mfd/ma35hz-sys.h>
 
 #include "ohci.h"
 
 
-#define DRIVER_DESC "Nuvoton MA35DH OHCI driver"
+#define DRIVER_DESC "Nuvoton MA35HZ OHCI driver"
 
-static const char hcd_name[] = "ohci-ma35dh";
-static struct hc_driver __read_mostly ohci_ma35dh_hc_driver;
+static const char hcd_name[] = "ohci-ma35hz";
+static struct hc_driver __read_mostly ohci_ma35hz_hc_driver;
 
 
 /* interface and function clocks */
-#define hcd_to_ma35dh_ohci_priv(h) \
-	((struct ma35dh_ohci_priv *)hcd_to_ohci(h)->priv)
+#define hcd_to_ma35hz_ohci_priv(h) \
+	((struct ma35hz_ohci_priv *)hcd_to_ohci(h)->priv)
 
-struct ma35dh_ohci_priv {
+struct ma35hz_ohci_priv {
 	int	id;
 	struct regmap *sysregmap;
 	struct clk *clk;
 };
 
-static int ohci_hcd_ma35dh_probe(struct platform_device *pdev)
+static int ohci_hcd_ma35hz_probe(struct platform_device *pdev)
 {
 	struct usb_hcd *hcd = 0;
-	const struct hc_driver *driver = &ohci_ma35dh_hc_driver;
-	struct ma35dh_ohci_priv *ma35dh_ohci;
+	const struct hc_driver *driver = &ohci_ma35hz_hc_driver;
+	struct ma35hz_ohci_priv *ma35hz_ohci;
 	struct resource *res;
 	int ret = 0, irq;
 
@@ -70,15 +70,15 @@ static int ohci_hcd_ma35dh_probe(struct platform_device *pdev)
 		goto fail_hcd;
 	}
 
-	ma35dh_ohci = hcd_to_ma35dh_ohci_priv(hcd);
+	ma35hz_ohci = hcd_to_ma35hz_ohci_priv(hcd);
 
-	ma35dh_ohci->clk = of_clk_get(pdev->dev.of_node, 0);
-	if (IS_ERR(ma35dh_ohci->clk)) {
-		ret = PTR_ERR(ma35dh_ohci->clk);
+	ma35hz_ohci->clk = of_clk_get(pdev->dev.of_node, 0);
+	if (IS_ERR(ma35hz_ohci->clk)) {
+		ret = PTR_ERR(ma35hz_ohci->clk);
 		dev_err(&pdev->dev, "failed to get core clk: %d\n", ret);
 		return -ENOENT;
 	}
-	ret = clk_prepare_enable(ma35dh_ohci->clk);
+	ret = clk_prepare_enable(ma35hz_ohci->clk);
 	if (ret)
 		return -ENOENT;
 
@@ -109,18 +109,18 @@ static int ohci_hcd_ma35dh_probe(struct platform_device *pdev)
 fail_resource:
 	usb_put_hcd(hcd);
 fail_hcd:
-	clk_disable_unprepare(ma35dh_ohci->clk);
+	clk_disable_unprepare(ma35hz_ohci->clk);
 	return ret;
 }
 
-static int ohci_hcd_ma35dh_remove(struct platform_device *pdev)
+static int ohci_hcd_ma35hz_remove(struct platform_device *pdev)
 {
 	struct usb_hcd *hcd = platform_get_drvdata(pdev);
-	struct ma35dh_ohci_priv *ma35dh_ohci = hcd_to_ma35dh_ohci_priv(hcd);
+	struct ma35hz_ohci_priv *ma35hz_ohci = hcd_to_ma35hz_ohci_priv(hcd);
 
 	usb_remove_hcd(hcd);
 	usb_put_hcd(hcd);
-	clk_disable_unprepare(ma35dh_ohci->clk);
+	clk_disable_unprepare(ma35hz_ohci->clk);
 
 	return 0;
 }
@@ -129,40 +129,40 @@ static int ohci_hcd_ma35dh_remove(struct platform_device *pdev)
 MODULE_ALIAS("platform:usb-ohci");
 
 #ifdef CONFIG_OF
-static const struct of_device_id ohci_hcd_ma35dh_match[] = {
-	{ .compatible = "nuvoton,ma35dh-ohci" },
+static const struct of_device_id ohci_hcd_ma35hz_match[] = {
+	{ .compatible = "nuvoton,ma35hz-ohci" },
 	{},
 };
-MODULE_DEVICE_TABLE(of, ohci_hcd_ma35dh_match);
+MODULE_DEVICE_TABLE(of, ohci_hcd_ma35hz_match);
 #endif
 
-static struct platform_driver ohci_hcd_ma35dh_driver = {
+static struct platform_driver ohci_hcd_ma35hz_driver = {
 	.driver = {
 		.name = "usb-ohci",
-		.of_match_table = of_match_ptr(ohci_hcd_ma35dh_match),
+		.of_match_table = of_match_ptr(ohci_hcd_ma35hz_match),
 	},
-	.probe = ohci_hcd_ma35dh_probe,
-	.remove = ohci_hcd_ma35dh_remove,
+	.probe = ohci_hcd_ma35hz_probe,
+	.remove = ohci_hcd_ma35hz_remove,
 };
 
-static int __init ohci_ma35dh_init(void)
+static int __init ohci_ma35hz_init(void)
 {
 	if (usb_disabled())
 		return -ENODEV;
 
 	pr_info("%s: " DRIVER_DESC "\n", hcd_name);
 
-	ohci_init_driver(&ohci_ma35dh_hc_driver, NULL);
-	return platform_driver_register(&ohci_hcd_ma35dh_driver);
+	ohci_init_driver(&ohci_ma35hz_hc_driver, NULL);
+	return platform_driver_register(&ohci_hcd_ma35hz_driver);
 }
-module_init(ohci_ma35dh_init);
+module_init(ohci_ma35hz_init);
 
-static void __exit ohci_ma35dh_cleanup(void)
+static void __exit ohci_ma35hz_cleanup(void)
 {
-	platform_driver_unregister(&ohci_hcd_ma35dh_driver);
+	platform_driver_unregister(&ohci_hcd_ma35hz_driver);
 }
-module_exit(ohci_ma35dh_cleanup);
+module_exit(ohci_ma35hz_cleanup);
 
 MODULE_DESCRIPTION(DRIVER_DESC);
-MODULE_ALIAS("platform:ma35dh-ohci");
+MODULE_ALIAS("platform:ma35hz-ohci");
 MODULE_LICENSE("GPL v2");

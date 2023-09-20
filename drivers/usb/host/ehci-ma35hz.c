@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * linux/driver/usb/host/ehci-ma35dh.c
+ * linux/driver/usb/host/ehci-ma35hz.c
  *
  * Copyright (c) 2020 Nuvoton technology corporation.
  *
@@ -24,87 +24,87 @@
 
 #include <linux/regmap.h>
 #include <linux/mfd/syscon.h>
-#include <linux/mfd/ma35dh-sys.h>
+#include <linux/mfd/ma35hz-sys.h>
 
 #include "ehci.h"
 
-#define DRIVER_DESC "Nuvoton MA35DH EHCI driver"
+#define DRIVER_DESC "Nuvoton MA35HZ EHCI driver"
 
-static const char hcd_name[] = "ehci-ma35dh";
+static const char hcd_name[] = "ehci-ma35hz";
 
 /* interface and function clocks */
-#define hcd_to_ma35dh_ehci_priv(h) \
-	((struct ma35dh_ehci_priv *)hcd_to_ehci(h)->priv)
+#define hcd_to_ma35hz_ehci_priv(h) \
+	((struct ma35hz_ehci_priv *)hcd_to_ehci(h)->priv)
 
-struct ma35dh_ehci_priv {
+struct ma35hz_ehci_priv {
 	int id;
 	struct regmap *sysregmap;
 	struct clk *clk;
 	int oc_active_level;
 };
 
-static struct hc_driver __read_mostly ehci_ma35dh_hc_driver;
+static struct hc_driver __read_mostly ehci_ma35hz_hc_driver;
 
-static const struct ehci_driver_overrides ehci_ma35dh_drv_overrides __initconst = {
-	.extra_priv_size = sizeof(struct ma35dh_ehci_priv),
+static const struct ehci_driver_overrides ehci_ma35hz_drv_overrides __initconst = {
+	.extra_priv_size = sizeof(struct ma35hz_ehci_priv),
 };
 
-static void ma35dh_start_ehci(struct platform_device *pdev)
+static void ma35hz_start_ehci(struct platform_device *pdev)
 {
 	struct usb_hcd *hcd = platform_get_drvdata(pdev);
-	struct ma35dh_ehci_priv *ma35dh_ehci = hcd_to_ma35dh_ehci_priv(hcd);
+	struct ma35hz_ehci_priv *ma35hz_ehci = hcd_to_ma35hz_ehci_priv(hcd);
 	u32   reg, timeout = (500 / 20);
 
-	ma35dh_ehci->sysregmap = syscon_regmap_lookup_by_phandle(pdev->dev.of_node,
+	ma35hz_ehci->sysregmap = syscon_regmap_lookup_by_phandle(pdev->dev.of_node,
 					"nuvoton,sys");
 
 	/* USBPMISCR; HSUSBH0 & HSUSBH1 PHY */
-	regmap_read(ma35dh_ehci->sysregmap, REG_SYS_USBPMISCR, &reg);
+	regmap_read(ma35hz_ehci->sysregmap, REG_SYS_USBPMISCR, &reg);
 	if ((reg & 0x20302) != 0x20302) {
 		reg = (reg & ~0x30003) | 0x20002;
-		regmap_write(ma35dh_ehci->sysregmap, REG_SYS_USBPMISCR, reg);
+		regmap_write(ma35hz_ehci->sysregmap, REG_SYS_USBPMISCR, reg);
 		do {
 			msleep(20);
-			regmap_read(ma35dh_ehci->sysregmap, REG_SYS_USBPMISCR, &reg);
+			regmap_read(ma35hz_ehci->sysregmap, REG_SYS_USBPMISCR, &reg);
 		} while (((reg & 0x20302) != 0x20302) && (timeout-- > 0));
 	}
 	dev_dbg(&pdev->dev, "REG_SYS_USBPMISCR = 0x%x, timeout = %d\n", reg, timeout);
 
 	/* set UHOVRCURH(SYS_MISCFCR0[12]) 1 => USBH Host over-current detect is high-active */
 	/*                                 0 => USBH Host over-current detect is low-active  */
-	regmap_read(ma35dh_ehci->sysregmap, REG_SYS_MISCFCR0, &reg);
-	if (ma35dh_ehci->oc_active_level)
-		regmap_write(ma35dh_ehci->sysregmap, REG_SYS_MISCFCR0, (reg | (1<<12)));
+	regmap_read(ma35hz_ehci->sysregmap, REG_SYS_MISCFCR0, &reg);
+	if (ma35hz_ehci->oc_active_level)
+		regmap_write(ma35hz_ehci->sysregmap, REG_SYS_MISCFCR0, (reg | (1<<12)));
 	else
-		regmap_write(ma35dh_ehci->sysregmap, REG_SYS_MISCFCR0, (reg & ~(1<<12)));
+		regmap_write(ma35hz_ehci->sysregmap, REG_SYS_MISCFCR0, (reg & ~(1<<12)));
 }
 
-static void ma35dh_stop_ehci(struct platform_device *pdev)
+static void ma35hz_stop_ehci(struct platform_device *pdev)
 {
 	struct usb_hcd *hcd = platform_get_drvdata(pdev);
-	struct ma35dh_ehci_priv *ma35dh_ehci = hcd_to_ma35dh_ehci_priv(hcd);
+	struct ma35hz_ehci_priv *ma35hz_ehci = hcd_to_ma35hz_ehci_priv(hcd);
 
 	dev_dbg(&pdev->dev, "stop\n");
-	clk_disable(ma35dh_ehci->clk);
+	clk_disable(ma35hz_ehci->clk);
 }
 
 
 /*-------------------------------------------------------------------------*/
 
-static int ehci_ma35dh_drv_probe(struct platform_device *pdev)
+static int ehci_ma35hz_drv_probe(struct platform_device *pdev)
 {
 	struct usb_hcd *hcd;
-	const struct hc_driver *driver = &ehci_ma35dh_hc_driver;
+	const struct hc_driver *driver = &ehci_ma35hz_hc_driver;
 	struct resource *res;
 	struct ehci_hcd *ehci;
-	struct ma35dh_ehci_priv *ma35dh_ehci;
+	struct ma35hz_ehci_priv *ma35hz_ehci;
 	int irq;
 	int retval;
 
 	if (usb_disabled())
 		return -ENODEV;
 
-	pr_debug("Initializing MA35DH EHCI...\n");
+	pr_debug("Initializing MA35HZ EHCI...\n");
 
 	irq = platform_get_irq(pdev, 0);
 	if (irq <= 0) {
@@ -138,29 +138,29 @@ static int ehci_ma35dh_drv_probe(struct platform_device *pdev)
 	ehci = hcd_to_ehci(hcd);
 	ehci->caps = hcd->regs;
 
-	ma35dh_ehci = hcd_to_ma35dh_ehci_priv(hcd);
+	ma35hz_ehci = hcd_to_ma35hz_ehci_priv(hcd);
 
-	ma35dh_ehci->clk = of_clk_get(pdev->dev.of_node, 0);
-	if (IS_ERR(ma35dh_ehci->clk)) {
-		retval = PTR_ERR(ma35dh_ehci->clk);
+	ma35hz_ehci->clk = of_clk_get(pdev->dev.of_node, 0);
+	if (IS_ERR(ma35hz_ehci->clk)) {
+		retval = PTR_ERR(ma35hz_ehci->clk);
 		dev_err(&pdev->dev, "failed to get core clk: %d\n", retval);
 		retval = -ENOENT;
 		goto fail_request_resource;
 	}
 
-	retval = clk_prepare_enable(ma35dh_ehci->clk);
+	retval = clk_prepare_enable(ma35hz_ehci->clk);
 	if (retval) {
 		dev_err(&pdev->dev, "failed to enable usb host clk: %d\n", retval);
 		retval = -ENOENT;
 		goto fail_request_resource;
 	}
 
-	if (of_property_read_u32(pdev->dev.of_node, "oc-active-level", &(ma35dh_ehci->oc_active_level))) {
-		ma35dh_ehci->oc_active_level = 0;
+	if (of_property_read_u32(pdev->dev.of_node, "oc-active-level", &(ma35hz_ehci->oc_active_level))) {
+		ma35hz_ehci->oc_active_level = 0;
 		dev_warn(&pdev->dev, "EHCI oc-active-level not found!!\n");
 	}
 
-	ma35dh_start_ehci(pdev);
+	ma35hz_start_ehci(pdev);
 
 	retval = usb_add_hcd(hcd, irq, IRQF_SHARED);
 	if (retval)
@@ -170,7 +170,7 @@ static int ehci_ma35dh_drv_probe(struct platform_device *pdev)
 	return retval;
 
 fail_add_hcd:
-	ma35dh_stop_ehci(pdev);
+	ma35hz_stop_ehci(pdev);
 fail_request_resource:
 	usb_put_hcd(hcd);
 fail_create_hcd:
@@ -180,82 +180,82 @@ fail_create_hcd:
 	return retval;
 }
 
-static int ehci_ma35dh_drv_remove(struct platform_device *pdev)
+static int ehci_ma35hz_drv_remove(struct platform_device *pdev)
 {
 	struct usb_hcd *hcd = platform_get_drvdata(pdev);
 
 	usb_remove_hcd(hcd);
 	usb_put_hcd(hcd);
 
-	ma35dh_stop_ehci(pdev);
+	ma35hz_stop_ehci(pdev);
 
 	return 0;
 }
 
-static int __maybe_unused ehci_ma35dh_drv_suspend(struct device *dev)
+static int __maybe_unused ehci_ma35hz_drv_suspend(struct device *dev)
 {
 	struct usb_hcd *hcd = dev_get_drvdata(dev);
-	struct ma35dh_ehci_priv *ma35dh_ehci = hcd_to_ma35dh_ehci_priv(hcd);
+	struct ma35hz_ehci_priv *ma35hz_ehci = hcd_to_ma35hz_ehci_priv(hcd);
 	int ret;
 
 	ret = ehci_suspend(hcd, false);
 	if (ret)
 		return ret;
 
-	clk_disable(ma35dh_ehci->clk);
+	clk_disable(ma35hz_ehci->clk);
 	return 0;
 }
 
-static int __maybe_unused ehci_ma35dh_drv_resume(struct device *dev)
+static int __maybe_unused ehci_ma35hz_drv_resume(struct device *dev)
 {
 	struct usb_hcd *hcd = dev_get_drvdata(dev);
-	struct ma35dh_ehci_priv *ma35dh_ehci = hcd_to_ma35dh_ehci_priv(hcd);
+	struct ma35hz_ehci_priv *ma35hz_ehci = hcd_to_ma35hz_ehci_priv(hcd);
 
-	clk_enable(ma35dh_ehci->clk);
+	clk_enable(ma35hz_ehci->clk);
 	ehci_resume(hcd, false);
 	return 0;
 }
 
 #ifdef CONFIG_OF
-static const struct of_device_id ma35dh_ehci_dt_ids[] = {
-	{ .compatible = "nuvoton,ma35dh-ehci" },
+static const struct of_device_id ma35hz_ehci_dt_ids[] = {
+	{ .compatible = "nuvoton,ma35hz-ehci" },
 	{ /* sentinel */ }
 };
 
-MODULE_DEVICE_TABLE(of, ma35dh_ehci_dt_ids);
+MODULE_DEVICE_TABLE(of, ma35hz_ehci_dt_ids);
 #endif
 
-static SIMPLE_DEV_PM_OPS(ehci_ma35dh_pm_ops, ehci_ma35dh_drv_suspend,
-					ehci_ma35dh_drv_resume);
+static SIMPLE_DEV_PM_OPS(ehci_ma35hz_pm_ops, ehci_ma35hz_drv_suspend,
+					ehci_ma35hz_drv_resume);
 
-static struct platform_driver ehci_ma35dh_driver = {
-	.probe		= ehci_ma35dh_drv_probe,
-	.remove		= ehci_ma35dh_drv_remove,
+static struct platform_driver ehci_ma35hz_driver = {
+	.probe		= ehci_ma35hz_drv_probe,
+	.remove		= ehci_ma35hz_drv_remove,
 	.shutdown	= usb_hcd_platform_shutdown,
 	.driver		= {
-		.name	= "ma35dh-ehci",
-		.pm	= &ehci_ma35dh_pm_ops,
-		.of_match_table	= of_match_ptr(ma35dh_ehci_dt_ids),
+		.name	= "ma35hz-ehci",
+		.pm	= &ehci_ma35hz_pm_ops,
+		.of_match_table	= of_match_ptr(ma35hz_ehci_dt_ids),
 	},
 };
 
-static int __init ehci_ma35dh_init(void)
+static int __init ehci_ma35hz_init(void)
 {
 	if (usb_disabled())
 		return -ENODEV;
 
 	pr_info("%s: " DRIVER_DESC "\n", hcd_name);
-	ehci_init_driver(&ehci_ma35dh_hc_driver, &ehci_ma35dh_drv_overrides);
-	return platform_driver_register(&ehci_ma35dh_driver);
+	ehci_init_driver(&ehci_ma35hz_hc_driver, &ehci_ma35hz_drv_overrides);
+	return platform_driver_register(&ehci_ma35hz_driver);
 }
-module_init(ehci_ma35dh_init);
+module_init(ehci_ma35hz_init);
 
-static void __exit ehci_ma35dh_cleanup(void)
+static void __exit ehci_ma35hz_cleanup(void)
 {
-	platform_driver_unregister(&ehci_ma35dh_driver);
+	platform_driver_unregister(&ehci_ma35hz_driver);
 }
-module_exit(ehci_ma35dh_cleanup);
+module_exit(ehci_ma35hz_cleanup);
 
 MODULE_DESCRIPTION(DRIVER_DESC);
-MODULE_ALIAS("platform:ma35dh-ehci");
+MODULE_ALIAS("platform:ma35hz-ehci");
 MODULE_LICENSE("GPL v2");

@@ -1,5 +1,5 @@
-#ifndef __LINUX_MFD_MA35DH_SYS_H
-#define __LINUX_MFD_MA35DH_SYS_H
+#ifndef __LINUX_MFD_MA35HZ_SYS_H
+#define __LINUX_MFD_MA35HZ_SYS_H
 
 #include <linux/clk.h>
 #include <linux/regmap.h>
@@ -85,7 +85,7 @@
 #define REG_SYS_RLKSUBM         (0x1A8)    /* SubM Register Lock Control Register (SubM) */
 #define REG_SYS_DPLPASWD        (0x1B0)    /* Deployed Password Register */
 
-void ma35dh_reg_lock(void);
-void ma35dh_reg_unlock(void);
+void ma35hz_reg_lock(void);
+void ma35hz_reg_unlock(void);
 
-#endif /* __LINUX_MFD_MA35DH_SYS_H */
+#endif /* __LINUX_MFD_MA35HZ_SYS_H */

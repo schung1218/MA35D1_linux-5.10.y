@@ -3,8 +3,8 @@
  * Copyright (c) 2022 Nuvoton Technology Corporation.
  */
 
-#ifndef __DT_BINDINGS_MA35DH_CLK_H
-#define __DT_BINDINGS_MA35DH_CLK_H
+#ifndef __DT_BINDINGS_MA35HZ_CLK_H
+#define __DT_BINDINGS_MA35HZ_CLK_H
 
 /* Clock Sources */
 /* External and Internal oscillator clocks */
@@ -257,7 +257,7 @@
 #define	EADC_GATE	235
 #define	CLK_MAX		236
 
-#define	MA35DH_CLK_MAX_IDX	236
+#define	MA35HZ_CLK_MAX_IDX	236
 
-#endif /* __DT_BINDINGS_MA35DH_CLK_H */
+#endif /* __DT_BINDINGS_MA35HZ_CLK_H */
 

@@ -1,5 +1,5 @@
-#ifndef _MA35DH_PINFUNC_
-#define _MA35DH_PINFUNC_
+#ifndef _MA35HZ_PINFUNC_
+#define _MA35HZ_PINFUNC_
 
 /*
  * The pin function    <REGISTER_OFFSET    BitMask_OFFSET    MFP_VALUE>
@@ -1616,4 +1616,4 @@
 #define SYS_GPN_MFPH_PN15MFP_UART6_TXD       0x0EC    0x1C    0x2
 #define SYS_GPN_MFPH_PN15MFP_USBHL3_DP       0x0EC    0x1C    0x4
 
-#endif /* _MA35DH_PINFUNC_ */
+#endif /* _MA35HZ_PINFUNC_ */

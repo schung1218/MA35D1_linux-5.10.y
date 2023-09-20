@@ -279,12 +279,12 @@ config USB_EHCI_HCD_MA35DZ
 	help
 	  Enables support for Nuvoton MA35DZ EHCI USB controller.
 
-config USB_EHCI_HCD_MA35DH
-	tristate  "Support for Nuvoton MA35DH EHCI USB controller"
-	depends on USB_EHCI_HCD && ARCH_MA35DH
+config USB_EHCI_HCD_MA35HZ
+	tristate  "Support for Nuvoton MA35HZ EHCI USB controller"
+	depends on USB_EHCI_HCD && ARCH_MA35HZ
 	default y
 	help
-	  Enables support for Nuvoton MA35DH EHCI USB controller.
+	  Enables support for Nuvoton MA35HZ EHCI USB controller.
 
 config USB_EHCI_HCD_AT91
 	tristate  "Support for Atmel on-chip EHCI USB controller"
@@ -546,12 +546,12 @@ config USB_OHCI_HCD_MA35DZ
 	help
 	  Enables support for Nuvoton MA35DZ OHCI USB controller.
 
-config USB_OHCI_HCD_MA35DH
-	tristate  "Support for Nuvoton MA35DH OHCI USB controller"
-	depends on USB_OHCI_HCD && ARCH_MA35DH
+config USB_OHCI_HCD_MA35HZ
+	tristate  "Support for Nuvoton MA35HZ OHCI USB controller"
+	depends on USB_OHCI_HCD && ARCH_MA35HZ
 	default y
 	help
-	  Enables support for Nuvoton MA35DH OHCI USB controller.
+	  Enables support for Nuvoton MA35HZ OHCI USB controller.
 
 config USB_OHCI_HCD_PPC_OF_BE
 	bool "OHCI support for OF platform bus (big endian)"
