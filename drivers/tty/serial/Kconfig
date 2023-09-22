@@ -33,6 +33,37 @@ config SERIAL_MA35D1_CONSOLE
 	  If you say Y here, it will be possible to use a serial port as the
 	  system console.
 
+config SERIAL_MA35DZ
+	bool "MA35DZ serial support"
+	depends on ARCH_MA35DZ
+	select SERIAL_CORE
+	help
+	  This selects MA35DZ serial driver.
+
+config SERIAL_MA35DZ_CONSOLE
+	bool "Console on MA35DZ serial port"
+	depends on SERIAL_MA35DZ
+	select SERIAL_CORE_CONSOLE
+	help
+	  If you say Y here, it will be possible to use a serial port as the
+	  system console.
+
+config SERIAL_MA35HZ
+	bool "MA35HZ serial support"
+	depends on ARCH_MA35HZ
+	select SERIAL_CORE
+	help
+	  This selects MA35HZ serial driver.
+
+config SERIAL_MA35HZ_CONSOLE
+	bool "Console on MA35HZ serial port"
+	depends on SERIAL_MA35HZ
+	select SERIAL_CORE_CONSOLE
+	help
+	  If you say Y here, it will be possible to use a serial port as the
+	  system console.
+
+
 config SERIAL_AMBA_PL010
 	tristate "ARM AMBA PL010 serial port support"
 	depends on ARM_AMBA

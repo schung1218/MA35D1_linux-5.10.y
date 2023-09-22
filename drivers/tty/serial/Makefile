@@ -92,6 +92,8 @@ obj-$(CONFIG_SERIAL_MILBEAUT_USIO) += milbeaut_usio.o
 obj-$(CONFIG_SERIAL_SIFIVE)	+= sifive.o
 obj-$(CONFIG_SERIAL_MA35D1)  += ma35d1_serial.o
 obj-$(CONFIG_SERIAL_MA35D1)  += ma35d1_puart.o
+obj-$(CONFIG_SERIAL_MA35DZ)  += ma35dz_serial.o
+obj-$(CONFIG_SERIAL_MA35HZ)  += ma35hz_serial.o
 
 # GPIOLIB helpers for modem control lines
 obj-$(CONFIG_SERIAL_MCTRL_GPIO)	+= serial_mctrl_gpio.o
