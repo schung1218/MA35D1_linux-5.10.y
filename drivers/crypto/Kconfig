@@ -787,7 +787,7 @@ config CRYPTO_DEV_NUVOTON
 
 config CRYPTO_DEV_MA35DZ
 	tristate "Nuvoton's MA35DZ Cryptographic Accelerator driver"
-	depends on ARCH_MA35D1
+	depends on ARCH_MA35DZ
 	select CRYPTO_AES
 	select CRYPTO_AEAD
 	select CRYPTO_BLKCIPHER
@@ -799,7 +799,7 @@ config CRYPTO_DEV_MA35DZ
 
 config CRYPTO_DEV_MA35HZ
 	tristate "Nuvoton's MA35HZ Cryptographic Accelerator driver"
-	depends on ARCH_MA35D1
+	depends on ARCH_MA35HZ
 	select CRYPTO_AES
 	select CRYPTO_AEAD
 	select CRYPTO_BLKCIPHER
