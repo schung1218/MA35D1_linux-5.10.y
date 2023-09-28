@@ -453,7 +453,6 @@
 		compatible = "nuvoton,ma35dz-crypto";
 		reg = <0x0 0x40300000 0x0 0x1000>;
 		interrupts = <GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>;
-		optee_nuvoton = "yes";
 		rsa_ioctl = "yes";           /* yes: RSA via ioctl, no: RSA via akcipher   */
 		ecc_ioctl = "yes";           /* yes: ECC via ioctl, no: ECDH via akcipher */
 		status = "okay";
@@ -464,7 +463,6 @@
 		compatible = "nuvoton,ma35dz-ks";
 		reg = <0x0 0x40340800 0x0 0x800>;
 		interrupts = <GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
-		optee_nuvoton = "yes";
 		status = "okay";
 	};
 
@@ -473,7 +471,6 @@
 		compatible = "nuvoton,ma35dz-trng";
 		reg = <0x0 0x40B90000 0x0 0x400>;
 		interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>;
-		optee_nuvoton = "yes";
 		status = "okay";
 	};
 
