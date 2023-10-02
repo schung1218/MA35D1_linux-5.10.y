@@ -492,12 +492,12 @@ config HW_RANDOM_MA35D1
 
 	  If unsure, say Y.
 
-config HW_RANDOM_MA35DZ
-	tristate "Nuvoton MA35DZ Random Number Generator support"
-	depends on ARCH_MA35DZ
+config HW_RANDOM_MA35D0
+	tristate "Nuvoton MA35D0 Random Number Generator support"
+	depends on ARCH_MA35D0
 	default HW_RANDOM
 	help
-	  This driver provides kernel-side support for the MA35DZ True Random Number
+	  This driver provides kernel-side support for the MA35D0 True Random Number
 	  Generator.
 
 	  To compile this driver as a module, choose M here: the
@@ -505,12 +505,12 @@ config HW_RANDOM_MA35DZ
 
 	  If unsure, say Y.
 
-config HW_RANDOM_MA35HZ
-	tristate "Nuvoton MA35HZ Random Number Generator support"
-	depends on ARCH_MA35HZ
+config HW_RANDOM_MA35H0
+	tristate "Nuvoton MA35H0 Random Number Generator support"
+	depends on ARCH_MA35H0
 	default HW_RANDOM
 	help
-	  This driver provides kernel-side support for the MA35HZ True Random Number
+	  This driver provides kernel-side support for the MA35H0 True Random Number
 	  Generator.
 
 	  To compile this driver as a module, choose M here: the

@@ -785,9 +785,9 @@ config CRYPTO_DEV_NUVOTON
 	  This driver supports Nuvoton cryptographic hardware accelerator. It supports AES
 	  ECB/CBC/CTR/CFB/OFB/GCM/CCM mode, SM4, SHA1/SHA256/SHA512, SM3, and MD5.
 
-config CRYPTO_DEV_MA35DZ
-	tristate "Nuvoton's MA35DZ Cryptographic Accelerator driver"
-	depends on ARCH_MA35DZ
+config CRYPTO_DEV_MA35D0
+	tristate "Nuvoton's MA35D0 Cryptographic Accelerator driver"
+	depends on ARCH_MA35D0
 	select CRYPTO_AES
 	select CRYPTO_AEAD
 	select CRYPTO_BLKCIPHER
@@ -797,9 +797,9 @@ config CRYPTO_DEV_MA35DZ
 	  This driver supports Nuvoton cryptographic hardware accelerator. It supports AES
 	  ECB/CBC/CTR/CFB/OFB/GCM/CCM mode, SM4, SHA1/SHA256/SHA512, SM3, and MD5.
 
-config CRYPTO_DEV_MA35HZ
-	tristate "Nuvoton's MA35HZ Cryptographic Accelerator driver"
-	depends on ARCH_MA35HZ
+config CRYPTO_DEV_MA35H0
+	tristate "Nuvoton's MA35H0 Cryptographic Accelerator driver"
+	depends on ARCH_MA35H0
 	select CRYPTO_AES
 	select CRYPTO_AEAD
 	select CRYPTO_BLKCIPHER
