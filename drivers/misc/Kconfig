@@ -462,6 +462,18 @@ config MA35D1_KS
 	help
 	  This driver provides support for Nuvoton MA35D1 Key Store.
 
+config MA35D0_KS
+	tristate "Nuvoton MA35D0 Key Store support"
+	depends on ARCH_MA35D0
+	help
+	  This driver provides support for Nuvoton MA35D0 Key Store.
+
+config MA35H0_KS
+	tristate "Nuvoton MA35H0 Key Store support"
+	depends on ARCH_MA35H0
+	help
+	  This driver provides support for Nuvoton MA35H0 Key Store.
+
 config MA35D1_TIMER
 	tristate "Nuvoton MA35D1 TIMER support"
 	depends on ARCH_MA35D1
