@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Nuvoton MA35DZ Clock Divider driver for ADC
+ * Nuvoton MA35H0 Clock Divider driver for ADC
  *
- * Copyright (C) 2023 Nuvoton Technology Corp.
+ * Copyright (C) 2022 Nuvoton Technology Corp.
  *
+ * Author: Chi-Fang Li <cfli0@nuvoton.com>
  */
 
 #include <linux/clk-provider.h>
@@ -12,11 +13,11 @@
 #include <linux/err.h>
 #include <linux/spinlock.h>
 
-#include "clk-ma35dz.h"
+#include "clk-ma35h0.h"
 
 #define div_mask(width)	((1 << (width)) - 1)
 
-struct ma35dz_adc_clk_divider {
+struct ma35h0_adc_clk_divider {
 	struct clk_hw hw;
 	void __iomem *reg;
 	u8 shift;
@@ -26,14 +27,14 @@ struct ma35dz_adc_clk_divider {
 	spinlock_t *lock;
 };
 
-#define to_ma35dz_adc_clk_divider(_hw)	\
-	container_of(_hw, struct ma35dz_adc_clk_divider, hw)
+#define to_ma35h0_adc_clk_divider(_hw)	\
+	container_of(_hw, struct ma35h0_adc_clk_divider, hw)
 
-static unsigned long ma35dz_clkdiv_recalc_rate(struct clk_hw *hw,
+static unsigned long ma35h0_clkdiv_recalc_rate(struct clk_hw *hw,
 					       unsigned long parent_rate)
 {
 	unsigned int val;
-	struct ma35dz_adc_clk_divider *dclk = to_ma35dz_adc_clk_divider(hw);
+	struct ma35h0_adc_clk_divider *dclk = to_ma35h0_adc_clk_divider(hw);
 
 	val = readl_relaxed(dclk->reg) >> dclk->shift;
 	val &= div_mask(dclk->width);
@@ -43,22 +44,22 @@ static unsigned long ma35dz_clkdiv_recalc_rate(struct clk_hw *hw,
 				   CLK_DIVIDER_ROUND_CLOSEST, dclk->width);
 }
 
-static long ma35dz_clkdiv_round_rate(struct clk_hw *hw, unsigned long rate,
+static long ma35h0_clkdiv_round_rate(struct clk_hw *hw, unsigned long rate,
 				     unsigned long *prate)
 {
-	struct ma35dz_adc_clk_divider *dclk = to_ma35dz_adc_clk_divider(hw);
+	struct ma35h0_adc_clk_divider *dclk = to_ma35h0_adc_clk_divider(hw);
 
 	return divider_round_rate(hw, rate, prate, dclk->table,
 				  dclk->width, CLK_DIVIDER_ROUND_CLOSEST);
 }
 
-static int ma35dz_clkdiv_set_rate(struct clk_hw *hw, unsigned long rate,
+static int ma35h0_clkdiv_set_rate(struct clk_hw *hw, unsigned long rate,
 				  unsigned long parent_rate)
 {
 	int value;
 	unsigned long flags = 0;
 	u32 data;
-	struct ma35dz_adc_clk_divider *dclk = to_ma35dz_adc_clk_divider(hw);
+	struct ma35h0_adc_clk_divider *dclk = to_ma35h0_adc_clk_divider(hw);
 
 	value = divider_get_val(rate, parent_rate, dclk->table,
 				dclk->width, CLK_DIVIDER_ROUND_CLOSEST);
@@ -79,18 +80,18 @@ static int ma35dz_clkdiv_set_rate(struct clk_hw *hw, unsigned long rate,
 	return 0;
 }
 
-static const struct clk_ops ma35dz_adc_clkdiv_ops = {
-	.recalc_rate = ma35dz_clkdiv_recalc_rate,
-	.round_rate = ma35dz_clkdiv_round_rate,
-	.set_rate = ma35dz_clkdiv_set_rate,
+static const struct clk_ops ma35h0_adc_clkdiv_ops = {
+	.recalc_rate = ma35h0_clkdiv_recalc_rate,
+	.round_rate = ma35h0_clkdiv_round_rate,
+	.set_rate = ma35h0_clkdiv_set_rate,
 };
 
-struct clk_hw *ma35dz_reg_adc_clkdiv(struct device *dev, const char *name,
+struct clk_hw *ma35h0_reg_adc_clkdiv(struct device *dev, const char *name,
 				     const char *parent_name,
 				     unsigned long flags, void __iomem *reg,
 				     u8 shift, u8 width, u32 mask_bit)
 {
-	struct ma35dz_adc_clk_divider *div;
+	struct ma35h0_adc_clk_divider *div;
 	struct clk_init_data init;
 	struct clk_div_table *table;
 	u32 max_div, min_div;
@@ -122,17 +123,17 @@ struct clk_hw *ma35dz_reg_adc_clkdiv(struct device *dev, const char *name,
 	table[max_div].div = 0;
 
 	init.name = name;
-	init.ops = &ma35dz_adc_clkdiv_ops;
+	init.ops = &ma35h0_adc_clkdiv_ops;
 	init.flags |= flags;
 	init.parent_names = parent_name ? &parent_name : NULL;
 	init.num_parents = parent_name ? 1 : 0;
 
-	/* struct ma35dz_adc_clk_divider assignments */
+	/* struct ma35h0_adc_clk_divider assignments */
 	div->reg = reg;
 	div->shift = shift;
 	div->width = width;
 	div->mask = mask_bit ? BIT(mask_bit) : 0;
-	div->lock = &ma35dz_lock;
+	div->lock = &ma35h0_lock;
 	div->hw.init = &init;
 	div->table = table;
 

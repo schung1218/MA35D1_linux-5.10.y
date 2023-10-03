@@ -6,8 +6,8 @@
  * Author: Chi-Fang Li <cfli0@nuvoton.com>
  */
 
-#ifndef CLK_NUVOTON_CLK_MA35DZ_H
-#define CLK_NUVOTON_CLK_MA35DZ_H
+#ifndef CLK_NUVOTON_CLK_MA35H0_H
+#define CLK_NUVOTON_CLK_MA35H0_H
 
 #include <linux/clk.h>
 #include <linux/clkdev.h>
@@ -15,17 +15,17 @@
 #include <linux/clk-provider.h>
 #include <linux/regmap.h>
 #include <linux/mfd/syscon.h>
-#include <linux/mfd/ma35dz-sys.h>
+#include <linux/mfd/ma35h0-sys.h>
 
-enum ma35dz_pll_type {
-	MA35DZ_CAPLL,
-	MA35DZ_DDRPLL,
-	MA35DZ_APLL,
-	MA35DZ_EPLL,
-	MA35DZ_VPLL,
+enum ma35h0_pll_type {
+	MA35H0_CAPLL,
+	MA35H0_DDRPLL,
+	MA35H0_APLL,
+	MA35H0_EPLL,
+	MA35H0_VPLL,
 };
 
-enum ma35dz_pll_mode {
+enum ma35h0_pll_mode {
 	VSIPLL_INTEGER_MODE,
 	VSIPLL_FRACTIONAL_MODE,
 	VSIPLL_SS_MODE,
@@ -136,27 +136,27 @@ enum ma35dz_pll_mode {
 #define VSIPLLCTL2_SLOPE_POS	(0)
 #define VSIPLLCTL2_SLOPE_MSK	(0xfffffful << VSIPLLCTL2_SLOPE_POS)
 
-struct clk_hw *ma35dz_reg_clk_pll(enum ma35dz_pll_type type, u8 u8mode,
+struct clk_hw *ma35h0_reg_clk_pll(enum ma35h0_pll_type type, u8 u8mode,
 				 const char *name, const char *parent,
 				 unsigned long targetFreq,
 				 void __iomem *base,
 				 struct regmap *regmap);
 
-struct clk_hw *ma35dz_reg_adc_clkdiv(struct device *dev,
+struct clk_hw *ma35h0_reg_adc_clkdiv(struct device *dev,
 				    const char *name,
 				    const char *parent_name,
 				    unsigned long flags,
 				    void __iomem *reg, u8 shift,
 				    u8 width, u32 mask_bit);
 
-extern spinlock_t ma35dz_lock;
+extern spinlock_t ma35h0_lock;
 
-static inline struct clk_hw *ma35dz_clk_fixed(const char *name, int rate)
+static inline struct clk_hw *ma35h0_clk_fixed(const char *name, int rate)
 {
 	return clk_hw_register_fixed_rate(NULL, name, NULL, 0, rate);
 }
 
-static inline struct clk_hw *ma35dz_clk_mux(const char *name,
+static inline struct clk_hw *ma35h0_clk_mux(const char *name,
 					    void __iomem *reg, u8 shift,
 					    u8 width,
 					    const char *const *parents,
@@ -164,29 +164,29 @@ static inline struct clk_hw *ma35dz_clk_mux(const char *name,
 {
 	return clk_hw_register_mux(NULL, name, parents, num_parents,
 				   CLK_SET_RATE_NO_REPARENT, reg, shift,
-				   width, 0, &ma35dz_lock);
+				   width, 0, &ma35h0_lock);
 }
 
-static inline struct clk_hw *ma35dz_clk_divider(const char *name,
+static inline struct clk_hw *ma35h0_clk_divider(const char *name,
 						const char *parent,
 						void __iomem *reg, u8 shift,
 						u8 width)
 {
 	return clk_hw_register_divider(NULL, name, parent, CLK_SET_RATE_PARENT,
-				       reg, shift, width, 0, &ma35dz_lock);
+				       reg, shift, width, 0, &ma35h0_lock);
 }
 
-static inline struct clk_hw *ma35dz_clk_divider_pow2(const char *name,
+static inline struct clk_hw *ma35h0_clk_divider_pow2(const char *name,
 						     const char *parent,
 						     void __iomem *reg,
 						     u8 shift, u8 width)
 {
 	return clk_hw_register_divider(NULL, name, parent,
 				       CLK_DIVIDER_POWER_OF_TWO, reg, shift,
-				       width, 0, &ma35dz_lock);
+				       width, 0, &ma35h0_lock);
 }
 
-static inline struct clk_hw *ma35dz_clk_divider_table(const char *name,
+static inline struct clk_hw *ma35h0_clk_divider_table(const char *name,
 						      const char *parent,
 						      void __iomem *reg,
 						      u8 shift, u8 width,
@@ -195,10 +195,10 @@ static inline struct clk_hw *ma35dz_clk_divider_table(const char *name,
 {
 	return clk_hw_register_divider_table(NULL, name, parent, 0,
 					     reg, shift, width, 0, table,
-					     &ma35dz_lock);
+					     &ma35h0_lock);
 }
 
-static inline struct clk_hw *ma35dz_clk_fixed_factor(const char *name,
+static inline struct clk_hw *ma35h0_clk_fixed_factor(const char *name,
 						     const char *parent,
 						     unsigned int mult,
 						     unsigned int div)
@@ -207,12 +207,12 @@ static inline struct clk_hw *ma35dz_clk_fixed_factor(const char *name,
 					    CLK_SET_RATE_PARENT, mult, div);
 }
 
-static inline struct clk_hw *ma35dz_clk_gate(const char *name,
+static inline struct clk_hw *ma35h0_clk_gate(const char *name,
 					     const char *parent,
 					     void __iomem *reg, u8 shift)
 {
 	return clk_hw_register_gate(NULL, name, parent, CLK_SET_RATE_PARENT,
-				    reg, shift, 0, &ma35dz_lock);
+				    reg, shift, 0, &ma35h0_lock);
 }
 
 #endif
