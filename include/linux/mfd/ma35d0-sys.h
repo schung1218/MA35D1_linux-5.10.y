@@ -85,7 +85,7 @@
 #define REG_SYS_RLKSUBM         (0x1A8)    /* SubM Register Lock Control Register (SubM) */
 #define REG_SYS_DPLPASWD        (0x1B0)    /* Deployed Password Register */
 
-void ma35dz_reg_lock(void);
-void ma35dz_reg_unlock(void);
+void ma35d0_reg_lock(void);
+void ma35d0_reg_unlock(void);
 
 #endif /* __LINUX_MFD_MA35D0_SYS_H */
