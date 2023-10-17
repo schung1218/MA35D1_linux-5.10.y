@@ -57,15 +57,15 @@ static long ma35h0_misctrl_ioctl(struct file *file, unsigned int cmd, unsigned l
 
 	switch (cmd) {
 	case SET_CPU_FREQ_500M:
-		arm_smccc_smc(MA35D0_SIP_CPU_CLK, 500, 0, 0, 0, 0, 0, 0, &res);
+		arm_smccc_smc(MA35H0_SIP_CPU_CLK, 500, 0, 0, 0, 0, 0, 0, &res);
 		break;
 
 	case SET_CPU_FREQ_600M:
-		arm_smccc_smc(MA35D0_SIP_CPU_CLK, 600, 0, 0, 0, 0, 0, 0, &res);
+		arm_smccc_smc(MA35H0_SIP_CPU_CLK, 600, 0, 0, 0, 0, 0, 0, &res);
 		break;
 
 	case SET_CPU_FREQ_650M:
-		arm_smccc_smc(MA35D0_SIP_CPU_CLK, 650, 0, 0, 0, 0, 0, 0, &res);
+		arm_smccc_smc(MA35H0_SIP_CPU_CLK, 650, 0, 0, 0, 0, 0, 0, &res);
 		break;
 
 	case GET_PMIC_VOLT:
