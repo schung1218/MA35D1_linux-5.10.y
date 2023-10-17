@@ -25,7 +25,7 @@
 #include <linux/compat.h>
 #include <linux/highmem.h>
 
-#include <uapi/misc/ma35d1_ks.h>
+#include <uapi/misc/ma35h0_ks.h>
 
 #define MISCDEV_NAME		"ksdev"
 
