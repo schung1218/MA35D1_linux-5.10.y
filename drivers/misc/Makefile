@@ -67,3 +67,5 @@ obj-$(CONFIG_MA35D1_EBI)	+= ma35d1-ebi.o
 obj-$(CONFIG_MA35D0_EBI)	+= ma35d0-ebi.o
 obj-$(CONFIG_MA35H0_EBI)	+= ma35h0-ebi.o
 obj-$(CONFIG_MA35D1_MISCTRL)	+= ma35d1-misctrl.o
+obj-$(CONFIG_MA35D0_MISCTRL)	+= ma35d0-misctrl.o
+obj-$(CONFIG_MA35H0_MISCTRL)	+= ma35h0-misctrl.o

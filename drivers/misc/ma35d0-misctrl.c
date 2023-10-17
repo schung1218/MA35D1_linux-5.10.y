@@ -22,13 +22,11 @@
 #include <linux/mm.h>
 #include <linux/mman.h>
 #include <linux/of.h>
-#include <soc/nuvoton/ma35d1_sip.h>
+#include <soc/nuvoton/ma35d0_sip.h>
 
 #define SET_CPU_FREQ_500M	0x1005
 #define SET_CPU_FREQ_600M	0x1006
 #define SET_CPU_FREQ_650M	0x1007
-#define SET_CPU_FREQ_800M	0x1008
-#define SET_CPU_FREQ_1000M	0x1010
 #define GET_PMIC_VOLT		0x1101
 #define SET_PMIC_VOLT		0x1102
 #define SET_EPLL_DIV_BY_2	0x1202
@@ -39,79 +37,71 @@
 #define SET_SYS_SPD_RESTORE	0x1302
 #define FORCE_CHIP_RESET	0x1401
 
-struct ma35d1_misctrl {
+struct ma35d0_misctrl {
 	int minor;
 	u32 mode;
 };
 
-static struct ma35d1_misctrl *misctrl;
+static struct ma35d0_misctrl *misctrl;
 
-static int ma35d1_misctrl_open(struct inode *inode, struct file *filp)
+static int ma35d0_misctrl_open(struct inode *inode, struct file *filp)
 {
 	filp->private_data = misctrl;
 
 	return 0;
 }
 
-static long ma35d1_misctrl_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+static long ma35d0_misctrl_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
 	struct arm_smccc_res res;
 
 	switch (cmd) {
 	case SET_CPU_FREQ_500M:
-		arm_smccc_smc(MA35D1_SIP_CPU_CLK, 500, 0, 0, 0, 0, 0, 0, &res);
+		arm_smccc_smc(MA35D0_SIP_CPU_CLK, 500, 0, 0, 0, 0, 0, 0, &res);
 		break;
 
 	case SET_CPU_FREQ_600M:
-		arm_smccc_smc(MA35D1_SIP_CPU_CLK, 600, 0, 0, 0, 0, 0, 0, &res);
+		arm_smccc_smc(MA35D0_SIP_CPU_CLK, 600, 0, 0, 0, 0, 0, 0, &res);
 		break;
 
 	case SET_CPU_FREQ_650M:
-		arm_smccc_smc(MA35D1_SIP_CPU_CLK, 650, 0, 0, 0, 0, 0, 0, &res);
-		break;
-
-	case SET_CPU_FREQ_800M:
-		arm_smccc_smc(MA35D1_SIP_CPU_CLK, 800, 0, 0, 0, 0, 0, 0, &res);
-		break;
-
-	case SET_CPU_FREQ_1000M:
-		arm_smccc_smc(MA35D1_SIP_CPU_CLK, 1000, 0, 0, 0, 0, 0, 0, &res);
+		arm_smccc_smc(MA35D0_SIP_CPU_CLK, 650, 0, 0, 0, 0, 0, 0, &res);
 		break;
 
 	case GET_PMIC_VOLT:
-		arm_smccc_smc(MA35D1_SIP_PMIC, MA35D1_SIP_PMIC_CPU, 0, 0, 0, 0, 0, 0, &res);
+		arm_smccc_smc(MA35D0_SIP_PMIC, MA35D0_SIP_PMIC_CPU, 0, 0, 0, 0, 0, 0, &res);
 		return res.a0;
 
 	case SET_PMIC_VOLT:
-		arm_smccc_smc(MA35D1_SIP_PMIC, MA35D1_SIP_PMIC_CPU, arg, 0, 0, 0, 0, 0, &res);
+		arm_smccc_smc(MA35D0_SIP_PMIC, MA35D0_SIP_PMIC_CPU, arg, 0, 0, 0, 0, 0, &res);
 		return 0;
 
 	case SET_EPLL_DIV_BY_2:
-		arm_smccc_smc(MA35D1_SIP_EPLL, MA35D1_SIP_EPLL_DIV_2, 0, 0, 0, 0, 0, 0, &res);
+		arm_smccc_smc(MA35D0_SIP_EPLL, MA35D0_SIP_EPLL_DIV_2, 0, 0, 0, 0, 0, 0, &res);
 		break;
 
 	case SET_EPLL_DIV_BY_4:
-		arm_smccc_smc(MA35D1_SIP_EPLL, MA35D1_SIP_EPLL_DIV_4, 0, 0, 0, 0, 0, 0, &res);
+		arm_smccc_smc(MA35D0_SIP_EPLL, MA35D0_SIP_EPLL_DIV_4, 0, 0, 0, 0, 0, 0, &res);
 		break;
 
 	case SET_EPLL_DIV_BY_8:
-		arm_smccc_smc(MA35D1_SIP_EPLL, MA35D1_SIP_EPLL_DIV_8, 0, 0, 0, 0, 0, 0, &res);
+		arm_smccc_smc(MA35D0_SIP_EPLL, MA35D0_SIP_EPLL_DIV_8, 0, 0, 0, 0, 0, 0, &res);
 		break;
 
 	case SET_EPLL_RESTORE:
-		arm_smccc_smc(MA35D1_SIP_EPLL, MA35D1_SIP_EPLL_RESTORE, 0, 0, 0, 0, 0, 0, &res);
+		arm_smccc_smc(MA35D0_SIP_EPLL, MA35D0_SIP_EPLL_RESTORE, 0, 0, 0, 0, 0, 0, &res);
 		break;
 
 	case SET_SYS_SPD_LOW:
-		arm_smccc_smc(MA35D1_SIP_LSPD, 1, 0, 0, 0, 0, 0, 0, &res);
+		arm_smccc_smc(MA35D0_SIP_LSPD, 1, 0, 0, 0, 0, 0, 0, &res);
 		break;
 
 	case SET_SYS_SPD_RESTORE:
-		arm_smccc_smc(MA35D1_SIP_LSPD, 0, 0, 0, 0, 0, 0, 0, &res);
+		arm_smccc_smc(MA35D0_SIP_LSPD, 0, 0, 0, 0, 0, 0, 0, &res);
 		break;
 
 	case FORCE_CHIP_RESET:
-		arm_smccc_smc(MA35D1_SIP_CHIP_RESET, 0, 0, 0, 0, 0, 0, 0, &res);
+		arm_smccc_smc(MA35D0_SIP_CHIP_RESET, 0, 0, 0, 0, 0, 0, 0, &res);
 		break;
 
 	default:
@@ -122,8 +112,8 @@ static long ma35d1_misctrl_ioctl(struct file *file, unsigned int cmd, unsigned l
 
 const struct file_operations misctrl_fops = {
 	.owner  = THIS_MODULE,
-	.open   = ma35d1_misctrl_open,
-	.unlocked_ioctl = ma35d1_misctrl_ioctl,
+	.open   = ma35d0_misctrl_open,
+	.unlocked_ioctl = ma35d0_misctrl_ioctl,
 };
 
 static struct miscdevice misctrl_dev[] = {
@@ -134,11 +124,11 @@ static struct miscdevice misctrl_dev[] = {
 	},
 };
 
-static int ma35d1_misctrl_probe(struct platform_device *pdev)
+static int ma35d0_misctrl_probe(struct platform_device *pdev)
 {
 	int ret;
 
-	misctrl = devm_kzalloc(&pdev->dev, sizeof(struct ma35d1_misctrl), GFP_KERNEL);
+	misctrl = devm_kzalloc(&pdev->dev, sizeof(struct ma35d0_misctrl), GFP_KERNEL);
 	if (misctrl == NULL)
 		return -ENOMEM;
 
@@ -155,7 +145,7 @@ static int ma35d1_misctrl_probe(struct platform_device *pdev)
 	return 0;
 }
 
-static int ma35d1_misctrl_remove(struct platform_device *pdev)
+static int ma35d0_misctrl_remove(struct platform_device *pdev)
 {
 	misc_deregister(&misctrl_dev[0]);
 
@@ -163,26 +153,26 @@ static int ma35d1_misctrl_remove(struct platform_device *pdev)
 }
 
 
-static const struct of_device_id ma35d1_misctrl_of_match[] = {
-	{ .compatible = "nuvoton,ma35d1-misctrl" },
+static const struct of_device_id ma35d0_misctrl_of_match[] = {
+	{ .compatible = "nuvoton,ma35d0-misctrl" },
 	{},
 };
-MODULE_DEVICE_TABLE(of, ma35d1_misctrl_of_match);
+MODULE_DEVICE_TABLE(of, ma35d0_misctrl_of_match);
 
-static struct platform_driver ma35d1_misctrl_driver = {
+static struct platform_driver ma35d0_misctrl_driver = {
 	.driver = {
 		.owner  = THIS_MODULE,
-		.name = "ma35d1-misctrl",
-		.of_match_table = of_match_ptr(ma35d1_misctrl_of_match),
+		.name = "ma35d0-misctrl",
+		.of_match_table = of_match_ptr(ma35d0_misctrl_of_match),
 	},
-	.probe   = ma35d1_misctrl_probe,
-	.remove  = ma35d1_misctrl_remove,
+	.probe   = ma35d0_misctrl_probe,
+	.remove  = ma35d0_misctrl_remove,
 };
 
-module_platform_driver(ma35d1_misctrl_driver);
+module_platform_driver(ma35d0_misctrl_driver);
 
-MODULE_ALIAS("platform:ma35d1-misctrl");
-MODULE_DESCRIPTION("misctrl driver for Nuvoton MA35D1");
+MODULE_ALIAS("platform:ma35d0-misctrl");
+MODULE_DESCRIPTION("misctrl driver for Nuvoton MA35D0");
 MODULE_LICENSE("GPL v2");
 
 
