@@ -446,7 +446,7 @@ static long ks_dev_ioctl(struct file *fptr, unsigned int cmd,
 	ks_dev = container_of(fptr->private_data, struct ma35d0_ks_dev,
 			      miscdev);
 
-	if (_IOC_TYPE(cmd) != MA35D1_KS_MAGIC)
+	if (_IOC_TYPE(cmd) != MA35D0_KS_MAGIC)
 		return -ENOTTY;
 
 	switch (cmd) {
