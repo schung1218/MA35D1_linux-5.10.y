@@ -69,17 +69,6 @@
 		};
 	};
 
-	volt0_sdhci1: regulator-volt0_sdhci1 {
-		compatible = "regulator-gpio";
-		regulator-name = "volt1_sdhci1";
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <3300000>;
-		gpios = <&gpion 11 GPIO_ACTIVE_HIGH>; /* PN11 */
-		gpios-states = <0>;
-		states = <1800000 0x1 3300000 0x0>;
-		enable-active-high;
-		regulator-boot-on;
-	};
 };
 
 &mem {
@@ -148,13 +137,19 @@
 	pinctrl-0 = <&pinctrl_nand>;
 };
 
-&sdhci1 {
+&sdhci0 {
 	status = "okay";
-	disable-wp;
-	pinctrl-names = "sdhci_3V3","sdhci_1V8";
-	pinctrl-0 = <&pinctrl_sdhci1_3_3V>;
-	pinctrl-1 = <&pinctrl_sdhci1_1_8V>;
-	vqmmc-supply = <&volt0_sdhci1>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_sdhci0>;
+};
+
+&sdhci1 {
+        status = "okay";
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_sdhci1_1_8V>;
+        max-frequency = <200000000>;
+        bus-width = <8>;
+        non-removable;
 };
 
 &epwm0 {
@@ -190,37 +185,37 @@
 };
 
 &i2c4 {
-	status = "okay";
+	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_i2c4>;
 };
 
 &i2c5 {
-	status = "okay";
+	status = "disabed";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_i2c5>;
 };
 
 &uart10 {
-	status = "okay";
+	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart10>;
 };
 
 &uart12 {
-	status = "okay";
+	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart12>;
 };
 
 &uart13 {
-	status = "okay";
+	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart13>;
 };
 
 &uart14 {
-	status = "okay";
+	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart14>;
 };
@@ -259,7 +254,7 @@
 };
 
 &can1 {
-	status = "okay";
+	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_can1>;
 };
@@ -473,6 +468,20 @@
 				<SYS_GPA_MFPH_PA12MFP_NAND_ALE	&pcfg_default>,
 				<SYS_GPA_MFPH_PA13MFP_NAND_nCS	&pcfg_default>,
 				<SYS_GPA_MFPH_PA14MFP_NAND_nWP	&pcfg_default>;
+		};
+	};
+	
+	sdhci0 {
+		pinctrl_sdhci0: sdhci0grp{
+			nuvoton,pins =
+				<SYS_GPC_MFPL_PC0MFP_eMMC0_CMD	&pcfg_sdhci_drive2_3_3V>,
+				<SYS_GPC_MFPL_PC1MFP_eMMC0_CLK	&pcfg_sdhci_drive2_3_3V>,
+				<SYS_GPC_MFPL_PC2MFP_eMMC0_DAT0	&pcfg_sdhci_drive2_3_3V>,
+				<SYS_GPC_MFPL_PC3MFP_eMMC0_DAT1	&pcfg_sdhci_drive2_3_3V>,
+				<SYS_GPC_MFPL_PC4MFP_eMMC0_DAT2	&pcfg_sdhci_drive2_3_3V>,
+				<SYS_GPC_MFPL_PC5MFP_eMMC0_DAT3	&pcfg_sdhci_drive2_3_3V>,
+				<SYS_GPC_MFPL_PC6MFP_SD0_nCD	&pcfg_default>,
+				<SYS_GPC_MFPL_PC7MFP_SD0_WP	&pcfg_default>;
 		};
 	};
 
