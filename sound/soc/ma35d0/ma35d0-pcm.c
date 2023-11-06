@@ -16,8 +16,6 @@
 
 #include "ma35d0-audio.h"
 
-#define MA35D0_DMABUF_SIZE	(64 * 1024)
-
 static const struct snd_pcm_hardware ma35d0_pcm_hardware = {
 	.info           = SNDRV_PCM_INFO_INTERLEAVED |
 	SNDRV_PCM_INFO_BLOCK_TRANSFER |
