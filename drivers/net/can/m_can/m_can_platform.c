@@ -24,6 +24,7 @@ static u32 iomap_read_reg(struct m_can_classdev *cdev, int reg)
 	u32 u32ReadReg = 0x0;
 	u32 u32ReadReg_1 = 0x0;
 	u32 u32TimeOutCnt = 0x0;
+	unsigned long flags;
 
 	spin_lock_irqsave(&priv->lock, flags);
 
