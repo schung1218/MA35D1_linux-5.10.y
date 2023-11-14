@@ -55,9 +55,6 @@ static void ma35d0_start_ehci(struct platform_device *pdev)
 	struct ma35d0_ehci_priv *ma35d0_ehci = hcd_to_ma35d0_ehci_priv(hcd);
 	u32   reg, timeout = (500 / 20);
 
-	ma35d0_ehci->sysregmap = syscon_regmap_lookup_by_phandle(pdev->dev.of_node,
-					"nuvoton,sys");
-
 	/* USBPMISCR; HSUSBH0 & HSUSBH1 PHY */
 	regmap_read(ma35d0_ehci->sysregmap, REG_SYS_USBPMISCR, &reg);
 	if ((reg & 0x20302) != 0x20302) {
@@ -98,6 +95,7 @@ static int ehci_ma35d0_drv_probe(struct platform_device *pdev)
 	struct resource *res;
 	struct ehci_hcd *ehci;
 	struct ma35d0_ehci_priv *ma35d0_ehci;
+	u32 rcalcode, reg;
 	int irq;
 	int retval;
 
@@ -148,6 +146,14 @@ static int ehci_ma35d0_drv_probe(struct platform_device *pdev)
 		goto fail_request_resource;
 	}
 
+	ma35d0_ehci->sysregmap = syscon_regmap_lookup_by_phandle(pdev->dev.of_node,
+				 "nuvoton,sys");
+	if (!ma35d0_ehci->sysregmap) {
+		dev_err(&pdev->dev, "failed to map sysreg!\n");
+		retval = -ENOENT;
+		goto fail_request_resource;
+	}
+
 	retval = clk_prepare_enable(ma35d0_ehci->clk);
 	if (retval) {
 		dev_err(&pdev->dev, "failed to enable usb host clk: %d\n", retval);
@@ -158,6 +164,18 @@ static int ehci_ma35d0_drv_probe(struct platform_device *pdev)
 	if (of_property_read_u32(pdev->dev.of_node, "oc-active-level", &(ma35d0_ehci->oc_active_level))) {
 		ma35d0_ehci->oc_active_level = 0;
 		dev_warn(&pdev->dev, "EHCI oc-active-level not found!!\n");
+	}
+
+	if (!of_property_read_u32(pdev->dev.of_node, "nuvoton,rcalcode0", &rcalcode)) {
+		regmap_read(ma35d0_ehci->sysregmap, REG_SYS_USBPMISCR, &reg);
+		reg = (reg & 0xffff0fff) | ((rcalcode & 0xf) << 12);
+		regmap_write(ma35d0_ehci->sysregmap, REG_SYS_USBPMISCR, reg);
+	}
+
+	if (!of_property_read_u32(pdev->dev.of_node, "nuvoton,rcalcode1", &rcalcode)) {
+		regmap_read(ma35d0_ehci->sysregmap, REG_SYS_USBPMISCR, &reg);
+		reg = (reg & 0x0fffffff) | ((rcalcode & 0xf) << 28);
+		regmap_write(ma35d0_ehci->sysregmap, REG_SYS_USBPMISCR, reg);
 	}
 
 	ma35d0_start_ehci(pdev);
