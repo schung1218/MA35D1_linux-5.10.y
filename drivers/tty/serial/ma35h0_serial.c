@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- *  MA35H0 serial driver
+ *  ma35h0 serial driver
  *
  *  Copyright (C) 2018 Nuvoton Technology Corp.
  *
@@ -35,10 +35,10 @@
 #include <linux/io.h>
 #include <asm/irq.h>
 #include <asm/serial.h>
-//#include <linux/platform_data/dma-ma35.h>
+#include <linux/platform_data/dma-ma35h0.h>
 #include "ma35_serial.h"
 
-#define UART_NR 5
+#define UART_NR 17
 #define UART_RX_BUF_SIZE 4096
 #define UART_TX_MAX_BUF_SIZE 128
 
@@ -48,20 +48,28 @@
 
 unsigned char UART_PDMA_TX_ID[UART_NR] = {
 	PDMA_UART0_TX, PDMA_UART1_TX, PDMA_UART2_TX,
-	PDMA_UART3_TX, PDMA_UART4_TX
+	PDMA_UART3_TX, PDMA_UART4_TX, PDMA_UART5_TX,
+	PDMA_UART6_TX, PDMA_UART7_TX, PDMA_UART8_TX,
+	PDMA_UART9_TX, PDMA_UART10_TX, PDMA_UART11_TX,
+	PDMA_UART12_TX, PDMA_UART13_TX, PDMA_UART14_TX,
+	PDMA_UART15_TX, PDMA_UART16_TX
 };
 
 unsigned char UART_PDMA_RX_ID[UART_NR] = {
 	PDMA_UART0_RX, PDMA_UART1_RX, PDMA_UART2_RX,
-	PDMA_UART3_RX, PDMA_UART4_RX
+	PDMA_UART3_RX, PDMA_UART4_RX, PDMA_UART5_RX,
+	PDMA_UART6_RX, PDMA_UART7_RX, PDMA_UART8_RX,
+	PDMA_UART9_RX, PDMA_UART10_RX, PDMA_UART11_RX,
+	PDMA_UART12_RX, PDMA_UART13_RX, PDMA_UART14_RX,
+	PDMA_UART15_RX, PDMA_UART16_RX
 };
 
 
-static struct uart_driver ma35serial_reg;
+static struct uart_driver ma35h0serial_reg;
 
 struct clk      *clk;
 
-struct uart_ma35_port {
+struct uart_ma35h0_port {
 	struct uart_port    port;
 
 	unsigned short      capabilities; /* port capabilities */
@@ -73,18 +81,17 @@ struct uart_ma35_port {
 
 	struct serial_rs485 rs485; /* rs485 settings */
 
-#if 0
 	struct ma35_ip_rx_dma dma_rx;
 	struct ma35_ip_tx_dma dma_tx;
 	struct ma35_mem_alloc src_mem_p;
 	struct ma35_mem_alloc dest_mem_p;
-	struct ma35_dma_done   dma_slave_done;
+	struct ma35h0_dma_done   dma_slave_done;
 
 	unsigned char PDMA_UARTx_TX;
 	unsigned char PDMA_UARTx_RX;
 
-	struct ma35_dma_done   dma_Rx_done;
-	struct ma35_dma_done   dma_Tx_done;
+	struct ma35h0_dma_done   dma_Rx_done;
+	struct ma35h0_dma_done   dma_Tx_done;
 
 	u64 pdma_rx_vir_addr1;
 	u64 pdma_rx_vir_addr2;
@@ -99,9 +106,6 @@ struct uart_ma35_port {
 	unsigned int pdma_time_out_prescaler;
 	unsigned int pdma_time_out_count;
 	unsigned int baud_rate;
-#else
-	unsigned char uart_pdma_enable_flag;
-#endif
 
 	unsigned int console_baud_rate;
 	unsigned int console_line;
@@ -114,40 +118,38 @@ struct uart_ma35_port {
 			unsigned int state, unsigned int old);
 };
 
-static struct uart_ma35_port ma35serial_ports[UART_NR] = {0};
+static struct uart_ma35h0_port ma35h0serial_ports[UART_NR] = {0};
 
 
-static inline void __stop_tx(struct uart_ma35_port *p);
+static inline void __stop_tx(struct uart_ma35h0_port *p);
 
-#if 0
-static void ma35_prepare_RX_dma(struct uart_ma35_port *p);
-static void ma35_prepare_TX_dma(struct uart_ma35_port *p);
-#endif
+static void ma35h0_prepare_RX_dma(struct uart_ma35h0_port *p);
+static void ma35h0_prepare_TX_dma(struct uart_ma35h0_port *p);
 
-static inline struct uart_ma35_port *
-to_ma35_uart_port(struct uart_port *uart)
+static inline struct uart_ma35h0_port *
+to_ma35h0_uart_port(struct uart_port *uart)
 {
-	return container_of(uart, struct uart_ma35_port, port);
+	return container_of(uart, struct uart_ma35h0_port, port);
 }
 
-static inline unsigned int serial_in(struct uart_ma35_port *p,
+static inline unsigned int serial_in(struct uart_ma35h0_port *p,
 									int offset)
 {
 	return __raw_readl(p->port.membase + offset);
 }
 
-static inline void serial_out(struct uart_ma35_port *p, int offset,
+static inline void serial_out(struct uart_ma35h0_port *p, int offset,
 								int value)
 {
 	__raw_writel(value, p->port.membase + offset);
 }
 
-#if 0
-static void ma35_Rx_dma_callback(void *arg)
+
+static void ma35h0_Rx_dma_callback(void *arg)
 {
-	struct ma35_dma_done *done = arg;
-	struct uart_ma35_port *p =
-			(struct uart_ma35_port *)done->callback_param;
+	struct ma35h0_dma_done *done = arg;
+	struct uart_ma35h0_port *p =
+			(struct uart_ma35h0_port *)done->callback_param;
 	struct ma35_ip_rx_dma *pdma_rx = &(p->dma_rx);
 	struct tty_port    *tty_port = &p->port.state->port;
 	int count;
@@ -182,7 +184,7 @@ static void ma35_Rx_dma_callback(void *arg)
 		}
 
 
-		ma35_prepare_RX_dma(p);
+		ma35h0_prepare_RX_dma(p);
 		/* Trigger Rx dma again */
 		serial_out(p, UART_REG_IER,
 				(serial_in(p, UART_REG_IER)|RXPDMAEN|TIME_OUT_EN));
@@ -210,7 +212,7 @@ static void ma35_Rx_dma_callback(void *arg)
 				dev_err(p->port.dev, "rx_tmp_buf bull\n");
 		}
 
-		ma35_prepare_RX_dma(p);
+		ma35h0_prepare_RX_dma(p);
 		/* Trigger Rx dma again */
 		serial_out(p, UART_REG_IER,
 				(serial_in(p, UART_REG_IER)|RXPDMAEN|TIME_OUT_EN));
@@ -237,11 +239,11 @@ static void ma35_Rx_dma_callback(void *arg)
 	spin_unlock(&p->port.lock);
 }
 
-static void ma35_Tx_dma_callback(void *arg)
+static void ma35h0_Tx_dma_callback(void *arg)
 {
-	struct ma35_dma_done *done = arg;
-	struct uart_ma35_port *p =
-			(struct uart_ma35_port *)done->callback_param;
+	struct ma35h0_dma_done *done = arg;
+	struct uart_ma35h0_port *p =
+			(struct uart_ma35h0_port *)done->callback_param;
 	struct circ_buf *xmit = &p->port.state->xmit;
 
 	spin_lock(&p->port.lock);
@@ -253,7 +255,7 @@ static void ma35_Tx_dma_callback(void *arg)
 
 	if (!uart_circ_empty(xmit) && !uart_tx_stopped(&p->port)) {
 		p->Tx_pdma_busy_flag = 1;
-		ma35_prepare_TX_dma(p);
+		ma35h0_prepare_TX_dma(p);
 		/* Trigger Tx dma again */
 		serial_out(p, UART_REG_IER,
 				(serial_in(p, UART_REG_IER) | TXPDMAEN));
@@ -262,19 +264,15 @@ static void ma35_Tx_dma_callback(void *arg)
 
 	spin_unlock(&p->port.lock);
 }
-#endif
 
-static void set_pdma_flag(struct uart_ma35_port *p, int id)
+static void set_pdma_flag(struct uart_ma35h0_port *p, int id)
 {
-#if 0
 	p->uart_pdma_enable_flag = 1;
 	p->PDMA_UARTx_RX = UART_PDMA_RX_ID[id];
 	p->PDMA_UARTx_TX = UART_PDMA_TX_ID[id];
-#endif
 }
 
-#if 0
-void ma35_uart_cal_pdma_time_out(struct uart_ma35_port *p,
+void ma35h0_uart_cal_pdma_time_out(struct uart_ma35h0_port *p,
 									unsigned int baud)
 {
 	unsigned int lcr;
@@ -333,10 +331,10 @@ void ma35_uart_cal_pdma_time_out(struct uart_ma35_port *p,
 	p->pdma_time_out_prescaler = time_out_prescaler;
 }
 
-static void ma35_prepare_RX_dma(struct uart_ma35_port *p)
+static void ma35h0_prepare_RX_dma(struct uart_ma35h0_port *p)
 {
 	struct ma35_ip_rx_dma *pdma_rx = &(p->dma_rx);
-	struct ma35_peripheral pcfg;
+	struct ma35h0_peripheral pcfg;
 	int ret;
 	int sg_loop, sg_size, sg_addr;
 
@@ -398,7 +396,7 @@ static void ma35_prepare_RX_dma(struct uart_ma35_port *p)
 		return;
 	}
 
-	pdma_rx->rxdesc->callback = ma35_Rx_dma_callback;
+	pdma_rx->rxdesc->callback = ma35h0_Rx_dma_callback;
 	p->dma_Rx_done.callback_param = p;
 	p->dma_Rx_done.timeout = 0;
 	pdma_rx->rxdesc->callback_param = &(p->dma_Rx_done);
@@ -407,11 +405,10 @@ static void ma35_prepare_RX_dma(struct uart_ma35_port *p)
 	dma_async_issue_pending(pdma_rx->chan_rx);
 }
 
-static void ma35_prepare_TX_dma(struct uart_ma35_port *p)
+static void ma35h0_prepare_TX_dma(struct uart_ma35h0_port *p)
 {
-
 	struct ma35_ip_tx_dma *pdma_tx = &(p->dma_tx);
-	struct ma35_peripheral pcfg;
+	struct ma35h0_peripheral pcfg;
 	int ret;
 
 	struct circ_buf *xmit = &p->port.state->xmit;
@@ -480,26 +477,24 @@ static void ma35_prepare_TX_dma(struct uart_ma35_port *p)
 		return;
 	}
 
-	pdma_tx->txdesc->callback = ma35_Tx_dma_callback;
+	pdma_tx->txdesc->callback = ma35h0_Tx_dma_callback;
 	p->dma_Tx_done.callback_param = p;
 	pdma_tx->txdesc->callback_param = &(p->dma_Tx_done);
 	dmaengine_submit(pdma_tx->txdesc);
 	dma_async_issue_pending(pdma_tx->chan_tx);
-
 }
-#endif
 
-static void rs485_start_rx(struct uart_ma35_port *port)
+static void rs485_start_rx(struct uart_ma35h0_port *port)
 {
 
 }
 
-static void rs485_stop_rx(struct uart_ma35_port *port)
+static void rs485_stop_rx(struct uart_ma35h0_port *port)
 {
 
 }
 
-static inline void __stop_tx(struct uart_ma35_port *p)
+static inline void __stop_tx(struct uart_ma35h0_port *p)
 {
 	unsigned int ier;
 
@@ -511,28 +506,25 @@ static inline void __stop_tx(struct uart_ma35_port *p)
 		rs485_start_rx(p);
 }
 
-static void ma35serial_stop_tx(struct uart_port *port)
+static void ma35h0serial_stop_tx(struct uart_port *port)
 {
-	struct uart_ma35_port *up = (struct uart_ma35_port *)port;
+	struct uart_ma35h0_port *up = (struct uart_ma35h0_port *)port;
 
 	__stop_tx(up);
 }
 
-static void transmit_chars(struct uart_ma35_port *up);
+static void transmit_chars(struct uart_ma35h0_port *up);
 
-static void ma35serial_start_tx(struct uart_port *port)
+static void ma35h0serial_start_tx(struct uart_port *port)
 {
-	struct uart_ma35_port *up = (struct uart_ma35_port *)port;
+	struct uart_ma35h0_port *up = (struct uart_ma35h0_port *)port;
 	unsigned int ier;
-#if 0
 	struct circ_buf *xmit = &up->port.state->xmit;
-#endif
 
 	if (up->rs485.flags & SER_RS485_ENABLED)
 		rs485_stop_rx(up);
 
 	if (up->uart_pdma_enable_flag == 1) {
-#if 0
 		if (up->Tx_pdma_busy_flag == 1)
 			return;
 
@@ -542,10 +534,9 @@ static void ma35serial_start_tx(struct uart_port *port)
 		}
 
 		up->Tx_pdma_busy_flag = 1;
-		ma35_prepare_TX_dma(up);
+		ma35h0_prepare_TX_dma(up);
 		serial_out(up, UART_REG_IER,
 				(serial_in(up, UART_REG_IER)|TXPDMAEN));
-#endif
 	} else {
 		struct circ_buf *xmit = &up->port.state->xmit;
 
@@ -558,20 +549,20 @@ static void ma35serial_start_tx(struct uart_port *port)
 	}
 }
 
-static void ma35serial_stop_rx(struct uart_port *port)
+static void ma35h0serial_stop_rx(struct uart_port *port)
 {
-	struct uart_ma35_port *up = (struct uart_ma35_port *)port;
+	struct uart_ma35h0_port *up = (struct uart_ma35h0_port *)port;
 
 	serial_out(up, UART_REG_IER, serial_in(up, UART_REG_IER) & ~RDA_IEN);
 }
 
-static void ma35serial_enable_ms(struct uart_port *port)
+static void ma35h0serial_enable_ms(struct uart_port *port)
 {
 
 }
 
 static void
-receive_chars(struct uart_ma35_port *up)
+receive_chars(struct uart_ma35h0_port *up)
 {
 	unsigned char ch;
 	unsigned int fsr;
@@ -648,7 +639,7 @@ tout_end:
 	up->max_count = 0;
 }
 
-static void transmit_chars(struct uart_ma35_port *up)
+static void transmit_chars(struct uart_ma35h0_port *up)
 {
 	struct circ_buf *xmit = &up->port.state->xmit;
 	int count = 16 - ((serial_in(up, UART_REG_FSR)>>16)&0xF);
@@ -666,7 +657,7 @@ static void transmit_chars(struct uart_ma35_port *up)
 	}
 
 	if (uart_tx_stopped(&up->port)) {
-		ma35serial_stop_tx(&up->port);
+		ma35h0serial_stop_tx(&up->port);
 		return;
 	}
 
@@ -694,7 +685,7 @@ static void transmit_chars(struct uart_ma35_port *up)
 
 }
 
-static unsigned int check_modem_status(struct uart_ma35_port *up)
+static unsigned int check_modem_status(struct uart_ma35h0_port *up)
 {
 	unsigned int status = 0;
 
@@ -704,9 +695,9 @@ static unsigned int check_modem_status(struct uart_ma35_port *up)
 	return status;
 }
 
-static irqreturn_t ma35serial_interrupt(int irq, void *dev_id)
+static irqreturn_t ma35h0serial_interrupt(int irq, void *dev_id)
 {
-	struct uart_ma35_port *up = (struct uart_ma35_port *)dev_id;
+	struct uart_ma35h0_port *up = (struct uart_ma35h0_port *)dev_id;
 	unsigned int isr, fsr;
 	unsigned char ch[64];
 	uint32_t i = 0;
@@ -762,9 +753,9 @@ static irqreturn_t ma35serial_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
-static unsigned int ma35serial_tx_empty(struct uart_port *port)
+static unsigned int ma35h0serial_tx_empty(struct uart_port *port)
 {
-	struct uart_ma35_port *up = (struct uart_ma35_port *)port;
+	struct uart_ma35h0_port *up = (struct uart_ma35h0_port *)port;
 	unsigned int fsr;
 
 	fsr = serial_in(up, UART_REG_FSR);
@@ -773,9 +764,9 @@ static unsigned int ma35serial_tx_empty(struct uart_port *port)
 				(TE_FLAG | TX_EMPTY) ? TIOCSER_TEMT : 0;
 }
 
-static unsigned int ma35serial_get_mctrl(struct uart_port *port)
+static unsigned int ma35h0serial_get_mctrl(struct uart_port *port)
 {
-	struct uart_ma35_port *up = (struct uart_ma35_port *)port;
+	struct uart_ma35h0_port *up = (struct uart_ma35h0_port *)port;
 	unsigned int status;
 	unsigned int ret = 0;
 
@@ -787,10 +778,10 @@ static unsigned int ma35serial_get_mctrl(struct uart_port *port)
 	return ret;
 }
 
-static void ma35serial_set_mctrl(struct uart_port *port,
+static void ma35h0serial_set_mctrl(struct uart_port *port,
 									unsigned int mctrl)
 {
-	struct uart_ma35_port *up = (struct uart_ma35_port *)port;
+	struct uart_ma35h0_port *up = (struct uart_ma35h0_port *)port;
 	unsigned int mcr = 0;
 	unsigned int ier = 0;
 
@@ -830,10 +821,10 @@ static void ma35serial_set_mctrl(struct uart_port *port,
 	serial_out(up, UART_REG_MCR, mcr);
 }
 
-static void ma35serial_break_ctl(struct uart_port *port,
+static void ma35h0serial_break_ctl(struct uart_port *port,
 									int break_state)
 {
-	struct uart_ma35_port *up = (struct uart_ma35_port *)port;
+	struct uart_ma35h0_port *up = (struct uart_ma35h0_port *)port;
 	unsigned long flags;
 	unsigned int lcr;
 
@@ -847,12 +838,11 @@ static void ma35serial_break_ctl(struct uart_port *port,
 	spin_unlock_irqrestore(&up->port.lock, flags);
 }
 
-static int ma35serial_startup(struct uart_port *port)
+static int ma35h0serial_startup(struct uart_port *port)
 {
-	struct uart_ma35_port *up = (struct uart_ma35_port *)port;
+	struct uart_ma35h0_port *up = (struct uart_ma35h0_port *)port;
 	struct tty_struct *tty = port->state->port.tty;
 	int retval;
-#if 0
 	struct ma35_ip_rx_dma *pdma_rx = &(up->dma_rx);
 	struct ma35_ip_tx_dma *pdma_tx = &(up->dma_tx);
 
@@ -879,7 +869,6 @@ static int ma35serial_startup(struct uart_port *port)
 		}
 		pdma_tx->chan_tx->private = (void *)1;
 	}
-#endif
 
 	/* Reset FIFO */
 	serial_out(up, UART_REG_FCR, TFR | RFR /* | RX_DIS */);
@@ -887,8 +876,8 @@ static int ma35serial_startup(struct uart_port *port)
 	/* Clear pending interrupts */
 	serial_out(up, UART_REG_ISR, 0xFFFFFFFF);
 
-	retval = request_irq(port->irq, ma35serial_interrupt, 0,
-						tty ? tty->name : "ma35_serial", port);
+	retval = request_irq(port->irq, ma35h0serial_interrupt, 0,
+						tty ? tty->name : "ma35h0_serial", port);
 
 	if (retval) {
 		dev_err(up->port.dev, "request irq failed.\n");
@@ -911,20 +900,18 @@ static int ma35serial_startup(struct uart_port *port)
 	else
 		serial_out(up, UART_REG_IER,
 				RTO_IEN | RDA_IEN | TIME_OUT_EN | BUFERR_IEN);
-#if 0
+
 	if (up->uart_pdma_enable_flag == 1)
 		up->baud_rate = 0;
-#endif
 
 	spin_unlock(&up->port.lock);
 
 	return 0;
 }
 
-static void ma35serial_shutdown(struct uart_port *port)
+static void ma35h0serial_shutdown(struct uart_port *port)
 {
-	struct uart_ma35_port *up = (struct uart_ma35_port *)port;
-#if 0
+	struct uart_ma35h0_port *up = (struct uart_ma35h0_port *)port;
 	struct ma35_ip_rx_dma *pdma_rx = &(up->dma_rx);
 	struct ma35_ip_tx_dma *pdma_tx = &(up->dma_tx);
 
@@ -942,7 +929,6 @@ static void ma35serial_shutdown(struct uart_port *port)
 		up->dest_mem_p.size = 0;
 		up->src_mem_p.size = 0;
 	}
-#endif
 
 	free_irq(port->irq, port);
 
@@ -950,7 +936,7 @@ static void ma35serial_shutdown(struct uart_port *port)
 	serial_out(up, UART_REG_IER, 0);
 }
 
-static unsigned int ma35serial_get_divisor(struct uart_port *port,
+static unsigned int ma35h0serial_get_divisor(struct uart_port *port,
 											unsigned int baud)
 {
 	unsigned int quot;
@@ -961,10 +947,10 @@ static unsigned int ma35serial_get_divisor(struct uart_port *port,
 }
 
 static void
-ma35serial_set_termios(struct uart_port *port,
+ma35h0serial_set_termios(struct uart_port *port,
 						struct ktermios *termios, struct ktermios *old)
 {
-	struct uart_ma35_port *up = (struct uart_ma35_port *)port;
+	struct uart_ma35h0_port *up = (struct uart_ma35h0_port *)port;
 	unsigned int lcr = 0;
 	unsigned long flags;
 	unsigned int baud, quot;
@@ -997,7 +983,7 @@ ma35serial_set_termios(struct uart_port *port,
 	baud = uart_get_baud_rate(port, termios, old, port->uartclk / 0xffff,
 								port->uartclk / 11);
 
-	quot = ma35serial_get_divisor(port, baud);
+	quot = ma35h0serial_get_divisor(port, baud);
 
 	/*
 	 * Ok, we're now changing the port state.  Do it with
@@ -1032,7 +1018,7 @@ ma35serial_set_termios(struct uart_port *port,
 	else
 		up->mcr &= ~UART_MCR_AFE;
 
-	ma35serial_set_mctrl(&up->port, up->port.mctrl);
+	ma35h0serial_set_mctrl(&up->port, up->port.mctrl);
 
 	serial_out(up, UART_REG_BAUD, quot | 0x30000000);
 
@@ -1041,36 +1027,33 @@ ma35serial_set_termios(struct uart_port *port,
 	spin_unlock_irqrestore(&up->port.lock, flags);
 
 	if (up->uart_pdma_enable_flag == 1) {
-#if 0
 		if (up->baud_rate != baud) {
 			up->baud_rate = baud;
 
-			ma35_uart_cal_pdma_time_out(up, baud);
+			ma35h0_uart_cal_pdma_time_out(up, baud);
 
-			ma35_prepare_RX_dma(up);
+			ma35h0_prepare_RX_dma(up);
 
 			/* trigger pdma */
 			serial_out(up, UART_REG_IER,
 					(serial_in(up, UART_REG_IER)|RXPDMAEN));
 		}
-#endif
 	}
 }
 
 static void
-ma35serial_pm(struct uart_port *port, unsigned int state,
+ma35h0serial_pm(struct uart_port *port, unsigned int state,
 				unsigned int oldstate)
 {
-	struct uart_ma35_port *p = (struct uart_ma35_port *)port;
+	struct uart_ma35h0_port *p = (struct uart_ma35h0_port *)port;
 
 	if (p->pm)
 		p->pm(port, state, oldstate);
 }
 
-static void ma35serial_release_port(struct uart_port *port)
+static void ma35h0serial_release_port(struct uart_port *port)
 {
-#if 0
-	struct uart_ma35_port *p = (struct uart_ma35_port *)port;
+	struct uart_ma35h0_port *p = (struct uart_ma35h0_port *)port;
 	struct ma35_ip_rx_dma *pdma_rx = &(p->dma_rx);
 	struct ma35_ip_tx_dma *pdma_tx = &(p->dma_tx);
 
@@ -1080,18 +1063,17 @@ static void ma35serial_release_port(struct uart_port *port)
 		dma_unmap_single(pdma_tx->chan_tx->device->dev,
 			p->src_mem_p.phy_addr, p->src_mem_p.size, DMA_TO_DEVICE);
 	}
-#endif
 
 	iounmap(port->membase);
 	port->membase = NULL;
 }
 
-static int ma35serial_request_port(struct uart_port *port)
+static int ma35h0serial_request_port(struct uart_port *port)
 {
 	return 0;
 }
 
-static void ma35serial_config_port(struct uart_port *port, int flags)
+static void ma35h0serial_config_port(struct uart_port *port, int flags)
 {
 	int ret;
 
@@ -1099,13 +1081,13 @@ static void ma35serial_config_port(struct uart_port *port, int flags)
 	 * Find the region that we can probe for.  This in turn
 	 * tells us whether we can probe for the type of port.
 	 */
-	ret = ma35serial_request_port(port);
+	ret = ma35h0serial_request_port(port);
 	if (ret < 0)
 		return;
 	port->type = PORT_MA35;
 }
 
-static int ma35serial_verify_port(struct uart_port *port,
+static int ma35h0serial_verify_port(struct uart_port *port,
 									struct serial_struct *ser)
 {
 	if (ser->type != PORT_UNKNOWN && ser->type != PORT_MA35)
@@ -1113,16 +1095,16 @@ static int ma35serial_verify_port(struct uart_port *port,
 	return 0;
 }
 
-static const char *ma35serial_type(struct uart_port *port)
+static const char *ma35h0serial_type(struct uart_port *port)
 {
-	return (port->type == PORT_MA35) ? "MA35" : NULL;
+	return (port->type == PORT_MA35) ? "ma35h0" : NULL;
 }
 
 /* Enable or disable the rs485 support */
-static int ma35serial_config_rs485(struct uart_port *port,
+static int ma35h0serial_config_rs485(struct uart_port *port,
 									struct serial_rs485 *rs485conf)
 {
-	struct uart_ma35_port *p = to_ma35_uart_port(port);
+	struct uart_ma35h0_port *p = to_ma35h0_uart_port(port);
 
 	p->rs485 = *rs485conf;
 
@@ -1151,7 +1133,7 @@ static int ma35serial_config_rs485(struct uart_port *port,
 	return 0;
 }
 
-static int ma35serial_ioctl(struct uart_port *port,
+static int ma35h0serial_ioctl(struct uart_port *port,
 							unsigned int cmd, unsigned long arg)
 {
 	switch (cmd) {
@@ -1162,43 +1144,42 @@ static int ma35serial_ioctl(struct uart_port *port,
 	return 0;
 }
 
-static const struct uart_ops ma35serial_ops = {
-	.tx_empty     = ma35serial_tx_empty,
-	.set_mctrl    = ma35serial_set_mctrl,
-	.get_mctrl    = ma35serial_get_mctrl,
-	.stop_tx      = ma35serial_stop_tx,
-	.start_tx     = ma35serial_start_tx,
-	.stop_rx      = ma35serial_stop_rx,
-	.enable_ms    = ma35serial_enable_ms,
-	.break_ctl    = ma35serial_break_ctl,
-	.startup      = ma35serial_startup,
-	.shutdown     = ma35serial_shutdown,
-	.set_termios  = ma35serial_set_termios,
-	.pm           = ma35serial_pm,
-	.type         = ma35serial_type,
-	.release_port = ma35serial_release_port,
-	.request_port = ma35serial_request_port,
-	.config_port  = ma35serial_config_port,
-	.verify_port  = ma35serial_verify_port,
-	.ioctl        = ma35serial_ioctl,
+static const struct uart_ops ma35h0serial_ops = {
+	.tx_empty     = ma35h0serial_tx_empty,
+	.set_mctrl    = ma35h0serial_set_mctrl,
+	.get_mctrl    = ma35h0serial_get_mctrl,
+	.stop_tx      = ma35h0serial_stop_tx,
+	.start_tx     = ma35h0serial_start_tx,
+	.stop_rx      = ma35h0serial_stop_rx,
+	.enable_ms    = ma35h0serial_enable_ms,
+	.break_ctl    = ma35h0serial_break_ctl,
+	.startup      = ma35h0serial_startup,
+	.shutdown     = ma35h0serial_shutdown,
+	.set_termios  = ma35h0serial_set_termios,
+	.pm           = ma35h0serial_pm,
+	.type         = ma35h0serial_type,
+	.release_port = ma35h0serial_release_port,
+	.request_port = ma35h0serial_request_port,
+	.config_port  = ma35h0serial_config_port,
+	.verify_port  = ma35h0serial_verify_port,
+	.ioctl        = ma35h0serial_ioctl,
 };
 
-static const struct of_device_id ma35_serial_of_match[] = {
+static const struct of_device_id ma35h0_serial_of_match[] = {
 	{ .compatible = "nuvoton,ma35h0-uart" },
 	{},
 };
-MODULE_DEVICE_TABLE(of, ma35_serial_of_match);
+MODULE_DEVICE_TABLE(of, ma35h0_serial_of_match);
 
-static void __init ma35serial_init_ports(void)
+static void __init ma35h0serial_init_ports(void)
 {
 	struct device_node *np;
 	struct device_node *clk_node;
 	unsigned char __iomem *clk_base;
-	struct uart_ma35_port *p = &ma35serial_ports[0];
-	u32	val32[4];
+	struct uart_ma35h0_port *p = &ma35h0serial_ports[0];
+	u32   val32[4];
 
 	clk_node = of_find_compatible_node(NULL, NULL, "nuvoton,ma35h0-clk");
-
 	clk_base = of_iomap(clk_node, 0);
 
 	__raw_writel(__raw_readl(clk_base+0xC) | (0x3fff << 12),
@@ -1206,17 +1187,17 @@ static void __init ma35serial_init_ports(void)
 	__raw_writel(__raw_readl(clk_base+0x20) & ~(3 << 16),
 					clk_base+0x20);
 
-	for_each_matching_node(np, ma35_serial_of_match) {
+	for_each_matching_node(np, ma35h0_serial_of_match) {
 
 		if (!of_find_property(np, "ma35h0-console", NULL))
-				continue;
+			continue;
 
 		if (of_property_read_u32_array(np, "reg", val32, 4) != 0)
 			return;
 
 		p->port.iobase = val32[1];
 		p->port.membase = ioremap(p->port.iobase, 0x10000);
-		p->port.ops = &ma35serial_ops;
+		p->port.ops = &ma35h0serial_ops;
 
 		if (of_property_read_u32_array(np, "port-number", val32, 1) != 0)
 			return;
@@ -1228,10 +1209,10 @@ static void __init ma35serial_init_ports(void)
 	}
 }
 
-#if defined(CONFIG_SERIAL_MA35H0_CONSOLE)
-static void ma35serial_console_putchar(struct uart_port *port, int ch)
+#ifdef CONFIG_SERIAL_MA35H0_CONSOLE
+static void ma35h0serial_console_putchar(struct uart_port *port, int ch)
 {
-	struct uart_ma35_port *up = (struct uart_ma35_port *)port;
+	struct uart_ma35h0_port *up = (struct uart_ma35h0_port *)port;
 
 	do {
 	} while (!(serial_in(up, UART_REG_FSR) & TX_EMPTY));
@@ -1244,10 +1225,10 @@ static void ma35serial_console_putchar(struct uart_port *port, int ch)
  *
  *  The console_lock must be held when we get here.
  */
-static void ma35serial_console_write(struct console *co, const char *s,
+static void ma35h0serial_console_write(struct console *co, const char *s,
 										unsigned int count)
 {
-	struct uart_ma35_port *up = &ma35serial_ports[co->index];
+	struct uart_ma35h0_port *up = &ma35h0serial_ports[co->index];
 	unsigned long flags;
 	unsigned int ier;
 
@@ -1261,7 +1242,7 @@ static void ma35serial_console_write(struct console *co, const char *s,
 	ier = serial_in(up, UART_REG_IER);
 	serial_out(up, UART_REG_IER, 0);
 
-	uart_console_write(&up->port, s, count, ma35serial_console_putchar);
+	uart_console_write(&up->port, s, count, ma35h0serial_console_putchar);
 
 	/*
 	 *  Finally, wait for transmitter to become empty
@@ -1276,7 +1257,7 @@ static void ma35serial_console_write(struct console *co, const char *s,
 	spin_unlock(&up->port.lock);
 }
 
-static int __init ma35serial_console_setup(struct console *co,
+static int __init ma35h0serial_console_setup(struct console *co,
 											char *options)
 {
 	struct uart_port *port;
@@ -1292,7 +1273,7 @@ static int __init ma35serial_console_setup(struct console *co,
 	 */
 	if (co->index >= UART_NR)
 		co->index = 0;
-	port = &ma35serial_ports[co->index].port;
+	port = &ma35h0serial_ports[co->index].port;
 
 	if (!port->iobase && !port->membase)
 		return -ENODEV;
@@ -1301,37 +1282,37 @@ static int __init ma35serial_console_setup(struct console *co,
 }
 
 
-static struct console ma35serial_console = {
+static struct console ma35h0serial_console = {
 	.name    = "ttyS",
-	.write   = ma35serial_console_write,
+	.write   = ma35h0serial_console_write,
 	.device  = uart_console_device,
-	.setup   = ma35serial_console_setup,
+	.setup   = ma35h0serial_console_setup,
 	.flags   = CON_PRINTBUFFER | CON_ENABLED,
 	.index   = -1,
-	.data    = &ma35serial_reg,
+	.data    = &ma35h0serial_reg,
 };
 
-static int __init ma35serial_console_init(void)
+static int __init ma35h0serial_console_init(void)
 {
-	ma35serial_init_ports();
-	register_console(&ma35serial_console);
+	ma35h0serial_init_ports();
+	register_console(&ma35h0serial_console);
 
 	return 0;
 }
-console_initcall(ma35serial_console_init);
+console_initcall(ma35h0serial_console_init);
 
-#define MA35SERIAL_CONSOLE    (&ma35serial_console)
+#define MA35H0SERIAL_CONSOLE    (&ma35h0serial_console)
 #else
-#define MA35SERIAL_CONSOLE    NULL
+#define MA35H0SERIAL_CONSOLE    NULL
 #endif
 
-static struct uart_driver ma35serial_reg = {
+static struct uart_driver ma35h0serial_reg = {
 	.owner        = THIS_MODULE,
 	.driver_name  = "serial",
 	.dev_name     = "ttyS",
 	.major        = TTY_MAJOR,
 	.minor        = 64,
-	.cons         = MA35SERIAL_CONSOLE,
+	.cons         = MA35H0SERIAL_CONSOLE,
 	.nr           = UART_NR,
 };
 
@@ -1340,23 +1321,23 @@ static struct uart_driver ma35serial_reg = {
  *
  *  Suspend one serial port.
  */
-void ma35serial_suspend_port(int line)
+void ma35h0serial_suspend_port(int line)
 {
-	uart_suspend_port(&ma35serial_reg, &ma35serial_ports[line].port);
+	uart_suspend_port(&ma35h0serial_reg, &ma35h0serial_ports[line].port);
 }
-EXPORT_SYMBOL(ma35serial_suspend_port);
+EXPORT_SYMBOL(ma35h0serial_suspend_port);
 
 /**
  *
  *  Resume one serial port.
  */
-void ma35serial_resume_port(int line)
+void ma35h0serial_resume_port(int line)
 {
-	struct uart_ma35_port *up = &ma35serial_ports[line];
+	struct uart_ma35h0_port *up = &ma35h0serial_ports[line];
 
-	uart_resume_port(&ma35serial_reg, &up->port);
+	uart_resume_port(&ma35h0serial_reg, &up->port);
 }
-EXPORT_SYMBOL(ma35serial_resume_port);
+EXPORT_SYMBOL(ma35h0serial_resume_port);
 
 static int  get_uart_port_number(struct platform_device *pdev)
 {
@@ -1376,10 +1357,10 @@ static int  get_uart_port_number(struct platform_device *pdev)
  * list is terminated with a zero flags entry, which means we expect
  * all entries to have at least UPF_BOOT_AUTOCONF set.
  */
-static int ma35serial_probe(struct platform_device *pdev)
+static int ma35h0serial_probe(struct platform_device *pdev)
 {
 	struct resource *res_mem;
-	struct uart_ma35_port *up;
+	struct uart_ma35h0_port *up;
 	int ret, i;
 	u32   val32[2];
 	struct clk *clk;
@@ -1389,7 +1370,7 @@ static int ma35serial_probe(struct platform_device *pdev)
 	if (i < 0)
 		return -EINVAL;
 
-	up = &ma35serial_ports[i];
+	up = &ma35h0serial_ports[i];
 
 	up->max_count = 0;
 
@@ -1401,7 +1382,7 @@ static int ma35serial_probe(struct platform_device *pdev)
 
 	up->port.iobase = res_mem->start;
 	up->port.membase = ioremap(up->port.iobase, 0x10000);
-	up->port.ops = &ma35serial_ops;
+	up->port.ops = &ma35h0serial_ops;
 
 	spin_lock_init(&up->port.lock);
 
@@ -1431,9 +1412,9 @@ static int ma35serial_probe(struct platform_device *pdev)
 	up->port.dev = &pdev->dev;
 	up->port.flags = UPF_BOOT_AUTOCONF;
 
-	up->port.rs485_config = ma35serial_config_rs485;
+	up->port.rs485_config = ma35h0serial_config_rs485;
 
-	ret = uart_add_one_port(&ma35serial_reg, &up->port);
+	ret = uart_add_one_port(&ma35h0serial_reg, &up->port);
 
 	platform_set_drvdata(pdev, up);
 
@@ -1443,7 +1424,7 @@ static int ma35serial_probe(struct platform_device *pdev)
 /*
  * Remove serial ports registered against a platform device.
  */
-static int ma35serial_remove(struct platform_device *dev)
+static int ma35h0serial_remove(struct platform_device *dev)
 {
 	int i;
 	struct uart_port *port = platform_get_drvdata(dev);
@@ -1451,25 +1432,25 @@ static int ma35serial_remove(struct platform_device *dev)
 	free_irq(port->irq, port);
 
 	for (i = 0; i < UART_NR; i++) {
-		struct uart_ma35_port *up = &ma35serial_ports[i];
+		struct uart_ma35h0_port *up = &ma35h0serial_ports[i];
 
 		if (up->port.dev == &dev->dev)
-			uart_remove_one_port(&ma35serial_reg, &up->port);
+			uart_remove_one_port(&ma35h0serial_reg, &up->port);
 	}
 	return 0;
 }
 
-static int ma35serial_suspend(struct platform_device *dev,
+static int ma35h0serial_suspend(struct platform_device *dev,
 								pm_message_t state)
 {
 	int i;
-	struct uart_ma35_port *up;
+	struct uart_ma35h0_port *up;
 
 	i = get_uart_port_number(dev);
 	if (i < 0)
 		return i;
 
-	up = &ma35serial_ports[i];
+	up = &ma35h0serial_ports[i];
 
 	if (i == 0) {
 		up->console_baud_rate = serial_in(up, UART_REG_BAUD);
@@ -1480,16 +1461,16 @@ static int ma35serial_suspend(struct platform_device *dev,
 	return 0;
 }
 
-static int ma35serial_resume(struct platform_device *dev)
+static int ma35h0serial_resume(struct platform_device *dev)
 {
 	int i;
-	struct uart_ma35_port *up;
+	struct uart_ma35h0_port *up;
 
 	i = get_uart_port_number(dev);
 	if (i < 0)
 		return i;
 
-	up = &ma35serial_ports[i];
+	up = &ma35h0serial_ports[i];
 
 	if (i == 0) {
 		serial_out(up, UART_REG_BAUD, up->console_baud_rate);
@@ -1500,43 +1481,43 @@ static int ma35serial_resume(struct platform_device *dev)
 	return 0;
 }
 
-static struct platform_driver ma35serial_driver = {
-	.probe      = ma35serial_probe,
-	.remove     = ma35serial_remove,
-	.suspend    = ma35serial_suspend,
-	.resume     = ma35serial_resume,
+static struct platform_driver ma35h0serial_driver = {
+	.probe      = ma35h0serial_probe,
+	.remove     = ma35h0serial_remove,
+	.suspend    = ma35h0serial_suspend,
+	.resume     = ma35h0serial_resume,
 	.driver     = {
-		.name   = "ma35-uart",
+		.name   = "ma35h0-uart",
 		.owner  = THIS_MODULE,
-		.of_match_table = of_match_ptr(ma35_serial_of_match),
+		.of_match_table = of_match_ptr(ma35h0_serial_of_match),
 	},
 };
 
-static int __init ma35serial_init(void)
+static int __init ma35h0serial_init(void)
 {
 	int ret;
 
-	ret = uart_register_driver(&ma35serial_reg);
+	ret = uart_register_driver(&ma35h0serial_reg);
 	if (ret)
 		return ret;
 
-	ret = platform_driver_register(&ma35serial_driver);
+	ret = platform_driver_register(&ma35h0serial_driver);
 	if (ret)
-		uart_unregister_driver(&ma35serial_reg);
+		uart_unregister_driver(&ma35h0serial_reg);
 
 	return ret;
 }
 
-static void __exit ma35serial_exit(void)
+static void __exit ma35h0serial_exit(void)
 {
-	platform_driver_unregister(&ma35serial_driver);
-	uart_unregister_driver(&ma35serial_reg);
+	platform_driver_unregister(&ma35h0serial_driver);
+	uart_unregister_driver(&ma35h0serial_reg);
 }
 
-module_init(ma35serial_init);
-module_exit(ma35serial_exit);
+module_init(ma35h0serial_init);
+module_exit(ma35h0serial_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("MA35 serial driver");
+MODULE_DESCRIPTION("ma35h0 serial driver");
 
 MODULE_ALIAS_CHARDEV_MAJOR(TTY_MAJOR);
