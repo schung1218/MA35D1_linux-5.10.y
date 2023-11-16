@@ -115,7 +115,6 @@
 
 &gmac1 {
 	status = "okay";
-	phy-mode = "rmii";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_gmac1>;
 };
@@ -262,20 +261,16 @@
 	gmac0 {
 		pinctrl_gmac0: gmac0grp{
 			nuvoton,pins =
-				<SYS_GPE_MFPL_PE0MFP_RGMII0_MDC		&pcfg_emac_1_8V>,
-				<SYS_GPE_MFPL_PE1MFP_RGMII0_MDIO	&pcfg_emac_1_8V>,
-				<SYS_GPE_MFPL_PE2MFP_RGMII0_TXCTL	&pcfg_emac_1_8V>,
-				<SYS_GPE_MFPL_PE3MFP_RGMII0_TXD0	&pcfg_emac_1_8V>,
-				<SYS_GPE_MFPL_PE4MFP_RGMII0_TXD1	&pcfg_emac_1_8V>,
-				<SYS_GPE_MFPL_PE5MFP_RGMII0_RXCLK	&pcfg_emac_1_8V>,
-				<SYS_GPE_MFPL_PE6MFP_RGMII0_RXCTL	&pcfg_emac_1_8V>,
-				<SYS_GPE_MFPL_PE7MFP_RGMII0_RXD0	&pcfg_emac_1_8V>,
-				<SYS_GPE_MFPH_PE8MFP_RGMII0_RXD1	&pcfg_emac_1_8V>,
-				<SYS_GPE_MFPH_PE9MFP_RGMII0_RXD2	&pcfg_emac_1_8V>,
-				<SYS_GPE_MFPH_PE10MFP_RGMII0_RXD3	&pcfg_emac_1_8V>,
-				<SYS_GPE_MFPH_PE11MFP_RGMII0_TXCLK	&pcfg_emac_1_8V>,
-				<SYS_GPE_MFPH_PE12MFP_RGMII0_TXD2	&pcfg_emac_1_8V>,
-				<SYS_GPE_MFPH_PE13MFP_RGMII0_TXD3	&pcfg_emac_1_8V>;
+				<SYS_GPE_MFPL_PE0MFP_RMII0_MDC		&pcfg_emac_3_3V>,
+				<SYS_GPE_MFPL_PE1MFP_RMII0_MDIO		&pcfg_emac_3_3V>,
+				<SYS_GPE_MFPL_PE2MFP_RMII0_TXEN		&pcfg_emac_3_3V>,
+				<SYS_GPE_MFPL_PE3MFP_RMII0_TXD0		&pcfg_emac_3_3V>,
+				<SYS_GPE_MFPL_PE4MFP_RMII0_TXD1		&pcfg_emac_3_3V>,
+				<SYS_GPE_MFPL_PE5MFP_RMII0_REFCLK	&pcfg_emac_3_3V>,
+				<SYS_GPE_MFPL_PE6MFP_RMII0_CRSDV	&pcfg_emac_3_3V>,
+				<SYS_GPE_MFPL_PE7MFP_RMII0_RXD0		&pcfg_emac_3_3V>,
+				<SYS_GPE_MFPH_PE8MFP_RMII0_RXD1		&pcfg_emac_3_3V>,
+				<SYS_GPE_MFPH_PE9MFP_RMII0_RXERR	&pcfg_emac_3_3V>,
 		};
 	};
 

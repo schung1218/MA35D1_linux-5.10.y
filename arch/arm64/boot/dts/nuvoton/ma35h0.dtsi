@@ -28,7 +28,6 @@
 
 	aliases {
 		ethernet0 = &gmac0;
-		ethernet1 = &gmac1;
 	};
 
 	cpus {
@@ -674,7 +673,7 @@
 		reg = <0x0 0x40120000 0x0 0x10000>;
 		interrupts = <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "macirq";
-		phy-mode = "rgmii-id";
+		phy-mode = "rmii";
 		nuvoton,ma35h0-sys = <&sys>;
 		clocks = <&clk EMAC0_GATE>, <&clk EPLL_DIV8>;
 		clock-names = "stmmaceth", "ptp_ref";
@@ -690,33 +689,6 @@
 			#size-cells = <0>;
 
 			eth_phy0: ethernet-phy@0 {
-				reg = <1>;
-			};
-		};
-
-	};
-
-	gmac1: ethernet@40130000 {
-		compatible = "nuvoton,ma35h0-gmac";
-		reg = <0x0 0x40130000 0x0 0x10000>;
-		interrupts = <GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>;
-		interrupt-names = "macirq";
-		phy-mode = "rgmii-id";
-		nuvoton,ma35h0-sys = <&sys>;
-		clocks = <&clk EMAC1_GATE>, <&clk EPLL_DIV8>;
-		clock-names = "stmmaceth", "ptp_ref";
-		resets = <&reset MA35H0_RESET_GMAC1>;
-		reset-names = "stmmaceth";
-		mac-id = <1>;
-		clk_csr = <4>;
-		status = "disable";
-		phy-handle = <&eth_phy1>;
-		mdio1 {
-			compatible = "snps,dwmac-mdio";
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			eth_phy1: ethernet-phy@1 {
 				reg = <1>;
 			};
 		};

@@ -674,7 +674,7 @@
 		reg = <0x0 0x40120000 0x0 0x10000>;
 		interrupts = <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "macirq";
-		phy-mode = "rgmii-id";
+		phy-mode = "rmii";
 		nuvoton,ma35d0-sys = <&sys>;
 		clocks = <&clk EMAC0_GATE>, <&clk EPLL_DIV8>;
 		clock-names = "stmmaceth", "ptp_ref";
@@ -701,7 +701,7 @@
 		reg = <0x0 0x40130000 0x0 0x10000>;
 		interrupts = <GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "macirq";
-		phy-mode = "rgmii-id";
+		phy-mode = "rmii";
 		nuvoton,ma35d0-sys = <&sys>;
 		clocks = <&clk EMAC1_GATE>, <&clk EPLL_DIV8>;
 		clock-names = "stmmaceth", "ptp_ref";
