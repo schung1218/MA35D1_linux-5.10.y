@@ -110,7 +110,6 @@
 #define PDMA_UART16_TX 36
 #define PDMA_UART16_RX 37
 
-#if 0
 struct ma35_mem_alloc {
 	u64		size;
 	u64		vir_addr;
@@ -132,6 +131,5 @@ struct ma35_ip_tx_dma {
 	struct dma_slave_config slave_config;
 	dma_cookie_t cookie;
 };
-#endif
 
 #endif
