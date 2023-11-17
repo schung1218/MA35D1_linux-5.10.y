@@ -22,6 +22,13 @@
 		bootargs = "root=/dev/mmcblk1p1 rootfstype=ext4 rw rootwait console=ttyS0,115200n8 rdinit=/sbin/init mem=512M";
 	};
 
+	reserved-memory {
+		display_buf: display_buf@0 {
+			reg = <0x0 0x8C800000 0x0 0x1880000>; /* 24.5MiB */
+			no-map;
+		};
+	};
+
 	gpio_keys_test {
 		compatible = "gpio-keys";
 		status = "okay";
@@ -249,6 +256,13 @@
 	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_can1>;
+};
+
+&display {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_display0>;
+	memory-region = <&display_buf>;
+	status = "okay";
 };
 
 &pinctrl {
@@ -497,6 +511,40 @@
 				<SYS_GPM_MFPL_PM7MFP_CCAP0_DATA5	&pcfg_default>,
 				<SYS_GPM_MFPH_PM8MFP_CCAP0_DATA6	&pcfg_default>,
 				<SYS_GPM_MFPH_PM9MFP_CCAP0_DATA7	&pcfg_default>;
+		};
+	};
+
+	display {
+		pinctrl_display0: display0grp{
+			nuvoton,pins =
+				<SYS_GPG_MFPH_PG8MFP_LCM_VSYNC		&pcfg_default>,
+				<SYS_GPG_MFPH_PG9MFP_LCM_HSYNC		&pcfg_default>,
+				<SYS_GPG_MFPH_PG10MFP_LCM_CLK		&pcfg_default>,
+				<SYS_GPK_MFPL_PK4MFP_LCM_DEN		&pcfg_default>,
+				<SYS_GPI_MFPH_PI8MFP_LCM_DATA0		&pcfg_default>,
+				<SYS_GPI_MFPH_PI9MFP_LCM_DATA1		&pcfg_default>,
+				<SYS_GPI_MFPH_PI10MFP_LCM_DATA2		&pcfg_default>,
+				<SYS_GPI_MFPH_PI11MFP_LCM_DATA3		&pcfg_default>,
+				<SYS_GPI_MFPH_PI12MFP_LCM_DATA4		&pcfg_default>,
+				<SYS_GPI_MFPH_PI13MFP_LCM_DATA5		&pcfg_default>,
+				<SYS_GPI_MFPH_PI14MFP_LCM_DATA6		&pcfg_default>,
+				<SYS_GPI_MFPH_PI15MFP_LCM_DATA7		&pcfg_default>,
+				<SYS_GPH_MFPL_PH0MFP_LCM_DATA8		&pcfg_default>,
+				<SYS_GPH_MFPL_PH1MFP_LCM_DATA9		&pcfg_default>,
+				<SYS_GPH_MFPL_PH2MFP_LCM_DATA10		&pcfg_default>,
+				<SYS_GPH_MFPL_PH3MFP_LCM_DATA11		&pcfg_default>,
+				<SYS_GPH_MFPL_PH4MFP_LCM_DATA12		&pcfg_default>,
+				<SYS_GPH_MFPL_PH5MFP_LCM_DATA13		&pcfg_default>,
+				<SYS_GPH_MFPL_PH6MFP_LCM_DATA14		&pcfg_default>,
+				<SYS_GPH_MFPL_PH7MFP_LCM_DATA15		&pcfg_default>,
+				<SYS_GPC_MFPH_PC12MFP_LCM_DATA16	&pcfg_default>,
+				<SYS_GPC_MFPH_PC13MFP_LCM_DATA17	&pcfg_default>,
+				<SYS_GPC_MFPH_PC14MFP_LCM_DATA18	&pcfg_default>,
+				<SYS_GPC_MFPH_PC15MFP_LCM_DATA19	&pcfg_default>,
+				<SYS_GPH_MFPH_PH12MFP_LCM_DATA20	&pcfg_default>,
+				<SYS_GPH_MFPH_PH13MFP_LCM_DATA21	&pcfg_default>,
+				<SYS_GPH_MFPH_PH14MFP_LCM_DATA22	&pcfg_default>,
+				<SYS_GPH_MFPH_PH15MFP_LCM_DATA23	&pcfg_default>;
 		};
 	};
 };
