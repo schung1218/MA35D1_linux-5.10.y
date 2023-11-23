@@ -1239,50 +1239,6 @@
 		};
 	};
 
-	qspi1: spi@40690000 {
-		compatible = "nuvoton,ma35h0-qspi";
-		reg = <0x0 0x40690000 0x0 0x10000>;
-		interrupts = <GIC_SPI 58 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&clk QSPI1_GATE>;
-		dmas = <&pdma1 2>,<&pdma1 3>;
-		dma-names = "tx","rx";
-		pdma_reqsel_tx = <56>;
-		pdma_reqsel_rx = <57>;
-		use_pdma = <0>;
-		num_cs = <2>;
-		lsb = <0>;
-		sleep = <0>;
-		txbitlen = <8>;
-		quad = <0>;
-		bus_num = <1>;
-		spimode = <0>;
-		mrxphase = <0>;
-		status = "disabled";
-
-		#address-cells = <1>;
-		#size-cells = <0>;
-		flash@0 {
-			compatible = "winbond,w25q128";
-			spi-max-frequency = <60000000>;
-			reg = <0 0x0 0x2000000>;
-			#address-cells = <1>;
-			#size-cells = <1>;
-
-			partition@0 {
-				label = "U-Boot";
-				reg = <0x0 0x100000>;
-			};
-			partition@100000 {
-				label = "Linux";
-				reg = <0x100000 0xa00000>;
-			};
-			partition@b00000 {
-				label = "Rootfs";
-				reg = <0xb00000 0x500000>;
-			};
-		};
-	};
-
 	spi0: spi@40600000 {
 		compatible = "nuvoton,ma35h0-spi";
 		reg = <0x0 0x40600000 0x0 0x10000>;
@@ -1319,48 +1275,6 @@
 		sleep = <0>;
 		txbitlen = <8>;
 		bus_num = <3>;
-		spimode = <0>;
-		mrxphase = <0>;
-		spi-max-frequency = <10000000>;
-		status = "disabled";
-	};
-
-	spi2: spi@40620000 {
-		compatible = "nuvoton,ma35h0-spi";
-		reg = <0x0 0x40620000 0x0 0x10000>;
-		interrupts = <GIC_SPI 116 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&clk SPI2_GATE>;
-		dmas = <&pdma1 8>,<&pdma1 9>;
-		dma-names = "tx","rx";
-		pdma_reqsel_tx = <64>;
-		pdma_reqsel_rx = <65>;
-		use_pdma = <0>;
-		num_cs = <2>;
-		lsb = <0>;
-		sleep = <0>;
-		txbitlen = <8>;
-		bus_num = <4>;
-		spimode = <0>;
-		mrxphase = <0>;
-		spi-max-frequency = <10000000>;
-		status = "disabled";
-	};
-
-	spi3: spi@40630000 {
-		compatible = "nuvoton,ma35h0-spi";
-		reg = <0x0 0x40630000 0x0 0x10000>;
-		interrupts = <GIC_SPI 117 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&clk SPI3_GATE>;
-		dmas = <&pdma2 0>,<&pdma2 1>;
-		dma-names = "tx","rx";
-		pdma_reqsel_tx = <66>;
-		pdma_reqsel_rx = <67>;
-		use_pdma = <0>;
-		num_cs = <2>;
-		lsb = <0>;
-		sleep = <0>;
-		txbitlen = <8>;
-		bus_num = <5>;
 		spimode = <0>;
 		mrxphase = <0>;
 		spi-max-frequency = <10000000>;
@@ -1418,7 +1332,7 @@
 		interrupts = <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&clk GFX_GATE>;
 		resets = <&reset MA35H0_RESET_GFX>;
-		status = "disabled";
+		status = "okay";
 	};
 
 	display: display@40260000 {

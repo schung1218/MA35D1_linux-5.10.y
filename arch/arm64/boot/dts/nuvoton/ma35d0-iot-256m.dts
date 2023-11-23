@@ -163,9 +163,17 @@
 };
 
 &i2c0 {
-	status = "disabled";
+	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_i2c0>;
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+	nau8822: nau8822@1a {
+		compatible = "nuvoton,nau8822";
+		reg = <0x1a> ;
+		nuvoton,spk-btl;
+	};
 };
 
 &uart4 {
@@ -232,7 +240,7 @@
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_i2s0>;
-	powerdown-gpios = <&gpioc 2 GPIO_ACTIVE_HIGH>; /* PC2 */
+	powerdown-gpios = <&gpiom 6 GPIO_ACTIVE_HIGH>; /* PM6 */
 };
 
 &i2s_pcm {
@@ -253,12 +261,6 @@
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_spi0>;
-};
-
-&spi2 {
-	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_spi2>;
 };
 
 &can0 {
@@ -472,16 +474,6 @@
 				<SYS_GPB_MFPH_PB9MFP_SPI0_CLK    &pcfg_default>,
 				<SYS_GPL_MFPH_PL14MFP_SPI0_MOSI    &pcfg_default>,
 				<SYS_GPL_MFPH_PL15MFP_SPI0_MISO    &pcfg_default>;
-		};
-	};
-
-	spi2 {
-		pinctrl_spi2: spi2grp{
-			nuvoton,pins =
-				<SYS_GPG_MFPH_PG8MFP_SPI2_SS0	&pcfg_default>,
-				<SYS_GPG_MFPH_PG9MFP_SPI2_CLK	&pcfg_default>,
-				<SYS_GPG_MFPH_PG10MFP_SPI2_MOSI	&pcfg_default>,
-				<SYS_GPK_MFPL_PK4MFP_SPI2_MISO	&pcfg_default>;
 		};
 	};
 
