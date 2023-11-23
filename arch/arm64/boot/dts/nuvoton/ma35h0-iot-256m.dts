@@ -163,60 +163,22 @@
 	pinctrl-0 = <&pinctrl_adc0>;
 };
 
-&i2c1 {
-	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_i2c1>;
-
-	#address-cells = <1>;
-	#size-cells = <0>;
-	nau8822: nau8822@1a {
-		compatible = "nuvoton,nau8822";
-		reg = <0x1a> ;
-		nuvoton,spk-btl;
-	};
-};
-
-&i2c2 {
-	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_i2c2>;
-};
-
-&i2c4 {
+&i2c0 {
 	status = "disabled";
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_i2c4>;
+	pinctrl-0 = <&pinctrl_i2c0>;
 };
 
-&i2c5 {
+&uart6 {
 	status = "disabled";
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_i2c5>;
+	pinctrl-0 = <&pinctrl_uart6>;
 };
 
-&uart10 {
+&uart16 {
 	status = "disabled";
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart10>;
-};
-
-&uart12 {
-	status = "disabled";
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart12>;
-};
-
-&uart13 {
-	status = "disabled";
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart13>;
-};
-
-&uart14 {
-	status = "disabled";
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart14>;
+	pinctrl-0 = <&pinctrl_uart16>;
 };
 
 &i2s0 {
@@ -252,10 +214,10 @@
 	pinctrl-0 = <&pinctrl_spi2>;
 };
 
-&can1 {
+&can0 {
 	status = "disabled";
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_can1>;
+	pinctrl-0 = <&pinctrl_can0>;
 };
 
 &display {
@@ -309,72 +271,39 @@
 		};
 	};
 
-	i2c1 {
-		pinctrl_i2c1: i2c1grp{
+	i2c0 {
+		pinctrl_i2c0: i2c0grp{
 			nuvoton,pins =
-				<SYS_GPN_MFPL_PN4MFP_I2C1_SDA	&pcfg_default>,
-				<SYS_GPN_MFPL_PN5MFP_I2C1_SCL	&pcfg_default>;
+				<SYS_GPM_MFPH_PM8MFP_I2C0_SDA	&pcfg_default>,
+				<SYS_GPM_MFPH_PM9MFP_I2C0_SCL	&pcfg_default>;
 		};
 	};
 
-
-	i2c2 {
-		pinctrl_i2c2: i2c2grp{
+	can0 {
+		pinctrl_can0: can0grp{
 			nuvoton,pins =
-				<SYS_GPN_MFPL_PN0MFP_I2C2_SDA   &pcfg_default>,
-				<SYS_GPN_MFPL_PN1MFP_I2C2_SCL    &pcfg_default>;
+				<SYS_GPN_MFPL_PN2MFP_CAN0_RXD	&pcfg_default>,
+				<SYS_GPN_MFPL_PN3MFP_CAN0_TXD	&pcfg_default>;
 		};
 	};
 
-
-	i2c4 {
-		pinctrl_i2c4: i2c4grp{
+	uart6 {
+		pinctrl_uart6: uart6grp{
 			nuvoton,pins =
-				<SYS_GPC_MFPL_PC0MFP_I2C4_SDA	&pcfg_default>,
-				<SYS_GPC_MFPL_PC1MFP_I2C4_SCL	&pcfg_default>;
+				<SYS_GPN_MFPH_PN12MFP_UART6_nCTS	&pcfg_default>,
+				<SYS_GPN_MFPH_PN13MFP_UART6_nRTS	&pcfg_default>,
+				<SYS_GPN_MFPH_PN14MFP_UART6_RXD	&pcfg_default>,
+				<SYS_GPN_MFPH_PN15MFP_UART6_TXD	&pcfg_default>;
 		};
 	};
 
-	i2c5 {
-		pinctrl_i2c5: i2c5grp{
+	uart16 {
+		pinctrl_uart16: uart16grp{
 			nuvoton,pins =
-				<SYS_GPC_MFPL_PC4MFP_I2C5_SDA	&pcfg_default>,
-				<SYS_GPC_MFPL_PC5MFP_I2C5_SCL	&pcfg_default>;
-		};
-	};
-
-	uart10 {
-		pinctrl_uart10: uart10grp{
-			nuvoton,pins =
-				<SYS_GPH_MFPL_PH4MFP_UART10_nCTS	&pcfg_default>,
-				<SYS_GPH_MFPL_PH5MFP_UART10_nRTS	&pcfg_default>,
-				<SYS_GPH_MFPL_PH6MFP_UART10_RXD	&pcfg_default>,
-				<SYS_GPH_MFPL_PH7MFP_UART10_TXD	&pcfg_default>;
-		};
-	};
-
-	uart12 {
-		pinctrl_uart12: uart12grp{
-			nuvoton,pins =
-				<SYS_GPC_MFPH_PC13MFP_UART12_nRTS	&pcfg_default>,
-				<SYS_GPC_MFPH_PC14MFP_UART12_RXD	&pcfg_default>,
-				<SYS_GPC_MFPH_PC15MFP_UART12_TXD	&pcfg_default>;
-		};
-	};
-
-	uart13 {
-		pinctrl_uart13: uart13grp{
-			nuvoton,pins =
-				<SYS_GPH_MFPH_PH12MFP_UART13_RXD	&pcfg_default>,
-				<SYS_GPH_MFPH_PH13MFP_UART13_TXD	&pcfg_default>;
-		};
-	};
-
-	uart14 {
-		pinctrl_uart14: uart14grp{
-			nuvoton,pins =
-				<SYS_GPH_MFPH_PH14MFP_UART14_RXD	&pcfg_default>,
-				<SYS_GPH_MFPH_PH15MFP_UART14_TXD	&pcfg_default>;
+				<SYS_GPD_MFPH_PD8MFP_UART16_nCTS	&pcfg_default>,
+				<SYS_GPD_MFPH_PD9MFP_UART16_nRTS	&pcfg_default>,
+				<SYS_GPD_MFPH_PD10MFP_UART16_RXD	&pcfg_default>,
+				<SYS_GPD_MFPH_PD11MFP_UART16_TXD	&pcfg_default>;
 		};
 	};
 
