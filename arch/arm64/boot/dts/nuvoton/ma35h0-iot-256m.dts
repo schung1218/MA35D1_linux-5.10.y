@@ -24,7 +24,11 @@
 
 	reserved-memory {
 		display_buf: display_buf@0 {
-			reg = <0x0 0x8C800000 0x0 0x1880000>; /* 24.5MiB */
+			reg = <0x0 0x8DF80000 0x0 0x1880000>; /* 24.5MiB */
+			no-map;
+		};
+		vc8k_buf: vc8k_buf@0 {
+			reg = <0x0 0x8C780000 0x0 0x1800000>; /* 24MiB */
 			no-map;
 		};
 	};
@@ -226,6 +230,12 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_display0>;
 	memory-region = <&display_buf>;
+	status = "okay";
+};
+
+&vc8k {
+	memory-region = <&vc8k_buf>;
+	debug_level = <1>;
 	status = "okay";
 };
 
