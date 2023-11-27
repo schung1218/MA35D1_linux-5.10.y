@@ -73,7 +73,6 @@ obj-$(CONFIG_MXS_LRADC_ADC) += mxs-lradc-adc.o
 obj-$(CONFIG_NAU7802) += nau7802.o
 obj-$(CONFIG_NPCM_ADC) += npcm_adc.o
 obj-$(CONFIG_MA35D1_EADC) += ma35d1_eadc.o
-obj-$(CONFIG_MA35D0_EADC) += ma35d0_eadc.o
 obj-$(CONFIG_MA35H0_EADC) += ma35h0_eadc.o
 obj-$(CONFIG_PALMAS_GPADC) += palmas_gpadc.o
 obj-$(CONFIG_QCOM_SPMI_ADC5) += qcom-spmi-adc5.o

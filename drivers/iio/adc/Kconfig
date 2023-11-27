@@ -780,17 +780,6 @@ config MA35D1_EADC
 	  This driver can also be built as a module. If so, the module
 	  will be called ma35d1_eadc.
 
-config MA35D0_EADC
-	tristate "Nuvoton MA35D0 EADC driver"
-	depends on ARCH_MA35D0
-	select IIO_BUFFER
-	select IIO_TRIGGERED_BUFFER
-	help
-	  Say yes here to build support for Nuvoton MA35D0 EADC.
-
-	  This driver can also be built as a module. If so, the module
-	  will be called ma35d0_eadc.
-
 config MA35H0_EADC
 	tristate "Nuvoton MA35H0 EADC driver"
 	depends on ARCH_MA35H0
