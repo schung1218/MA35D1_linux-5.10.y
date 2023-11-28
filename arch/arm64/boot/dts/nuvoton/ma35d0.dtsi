@@ -103,10 +103,6 @@
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
-		rproc_buf: rproc_buf@0 {
-			reg = <0x0 0x80020000 0x0 0x60000>; /* 384KB */
-			no-map;
-		};
 	};
 
 	timer {
@@ -527,14 +523,6 @@
 
 	misctrl {
 		compatible = "nuvoton,ma35d0-misctrl";
-		status = "okay";
-	};
-
-	rproc {
-		compatible = "nuvoton,ma35d0-rproc";
-		mboxes = <&wormhole 1>;
-		resets = <&reset MA35D0_RESET_CM4>;
-		memory-region = <&rproc_buf>;
 		status = "okay";
 	};
 

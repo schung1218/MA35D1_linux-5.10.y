@@ -102,10 +102,6 @@
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
-		rproc_buf: rproc_buf@0 {
-			reg = <0x0 0x80020000 0x0 0x60000>; /* 384KB */
-			no-map;
-		};
 	};
 
 	timer {
@@ -356,12 +352,12 @@
 	};
 
 	i2c0: i2c@40800000 {
-		compatible = "nuvoton,ma35d0-i2c";
+		compatible = "nuvoton,ma35h0-i2c";
 		reg = <0x0 0x40800000 0x0 0x10000>;
-		interrupts = <GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>; ??
+		interrupts = <GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&clk I2C0_GATE>;
 		clock-frequency = <100000>;
-		resets = <&reset MA35D0_RESET_I2C0>;
+		resets = <&reset MA35H0_RESET_I2C0>;
 		#address-cells = <1>;
 		#size-cells = <0>;
 		status = "disable";
@@ -436,14 +432,6 @@
 
 	misctrl {
 		compatible = "nuvoton,ma35h0-misctrl";
-		status = "okay";
-	};
-
-	rproc {
-		compatible = "nuvoton,ma35h0-rproc";
-		mboxes = <&wormhole 1>;
-		resets = <&reset MA35H0_RESET_CM4>;
-		memory-region = <&rproc_buf>;
 		status = "okay";
 	};
 
