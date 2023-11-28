@@ -9,7 +9,7 @@ dtb-$(CONFIG_ARCH_MA35D1)    += ma35d1-iot-128m.dtb \
 
 dtb-$(CONFIG_ARCH_MA35D0)    += ma35d0-iot-256m.dtb
 
-dtb-$(CONFIG_ARCH_MA35H0)    += ma35h0-iot-128m.dtb
+dtb-$(CONFIG_ARCH_MA35H0)    += ma35h0-hmi-128m.dtb
 
 always          := $(dtb-y)
 clean-files     := *.dtb

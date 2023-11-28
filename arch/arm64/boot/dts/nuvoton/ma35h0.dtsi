@@ -268,7 +268,7 @@
 		interrupts = <GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>;
 		rsa_ioctl = "yes";           /* yes: RSA via ioctl, no: RSA via akcipher   */
 		ecc_ioctl = "yes";           /* yes: ECC via ioctl, no: ECDH via akcipher */
-		status = "disabled";
+		status = "okay";
 	};
 
 	/* Key Store */
@@ -284,7 +284,7 @@
 		compatible = "nuvoton,ma35h0-trng";
 		reg = <0x0 0x40B90000 0x0 0x400>;
 		interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>;
-		status = "disabed";
+		status = "okay";
 	};
 
 	rtc: rtc@40410000 {

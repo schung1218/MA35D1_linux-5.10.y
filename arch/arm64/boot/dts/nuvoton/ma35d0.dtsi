@@ -359,7 +359,7 @@
 		interrupts = <GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>;
 		rsa_ioctl = "yes";           /* yes: RSA via ioctl, no: RSA via akcipher   */
 		ecc_ioctl = "yes";           /* yes: ECC via ioctl, no: ECDH via akcipher */
-		status = "disabled";
+		status = "okay";
 	};
 
 	/* Key Store */
@@ -375,7 +375,7 @@
 		compatible = "nuvoton,ma35d0-trng";
 		reg = <0x0 0x40B90000 0x0 0x400>;
 		interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>;
-		status = "disabled";
+		status = "okay";
 	};
 
 	rtc: rtc@40410000 {
@@ -449,7 +449,7 @@
 	i2c0: i2c@40800000 {
 		compatible = "nuvoton,ma35d0-i2c";
 		reg = <0x0 0x40800000 0x0 0x10000>;
-		interrupts = <GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>; ??
+		interrupts = <GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&clk I2C0_GATE>;
 		clock-frequency = <100000>;
 		resets = <&reset MA35D0_RESET_I2C0>;
